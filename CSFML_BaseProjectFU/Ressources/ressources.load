@@ -1,0 +1,14 @@
+[all]
+animation loadingAnim ../Ressources/Textures/loading.anim
+[end]
+[menu]
+[end]
+[game]
+single frogIdle ../Ressources/Textures/GAME/players/frog/idle.png
+single astronautIdle ../Ressources/Textures/GAME/players/astronaut/idle.png
+single frogRun ../Ressources/Textures/GAME/players/frog/run.png
+single astronautJump ../Ressources/Textures/GAME/players/astronaut/jump.png
+single astronautFall ../Ressources/Textures/GAME/players/astronaut/fall.png
+
+single castleTiles ../Ressources/Textures/GAME/tiles/castleTiles.png
+[end]

@@ -85,15 +85,18 @@ void updatePlayer(Window* _window)
 	float xStickPos = getStickPos(0, sfTrue, sfTrue);
 	float yStickPos = getStickPos(0, sfTrue, sfFalse);
 
+	if (sfKeyboard_isKeyPressed(sfKeyA)) p[FROG].pos = vector2f(300.f, 520.f);
+	if (sfKeyboard_isKeyPressed(sfKeyE)) p[ASTRONAUT].pos = p[FROG].pos;
+
 	if (viewTimer >= LERP_VIEW_TIMER)
 	{
-		if (((xStickPos < -50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyQ)) && !isCollision(p[FROG].bounds, sfTrue, sfTrue)) {
+		if (((xStickPos < -50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyQ)) && !isCollision2(p[FROG].bounds, sfTrue, sfTrue)) {
 			p[FROG].velocity.x = -p[FROG].speed;
 			p[FROG].anim = RUN;
 			p[FROG].isFlipped = sfTrue;
 			viewFocus = FROG;
 		}
-		else if (((xStickPos > 50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyD)) && !isCollision(p[FROG].bounds, sfTrue, sfFalse)) {
+		else if (((xStickPos > 50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyD)) && !isCollision2(p[FROG].bounds, sfTrue, sfFalse)) {
 			p[FROG].velocity.x = p[FROG].speed;
 			p[FROG].anim = RUN;
 			p[FROG].isFlipped = sfFalse;
@@ -104,12 +107,12 @@ void updatePlayer(Window* _window)
 			p[FROG].velocity.x = 0.f;
 		}
 
-		if (((yStickPos < -50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyS)) && !isCollision(p[ASTRONAUT].bounds, sfFalse, sfFalse)) {
+		if (((yStickPos < -50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyS)) && !isCollision2(p[ASTRONAUT].bounds, sfFalse, sfFalse)) {
 			p[ASTRONAUT].velocity.y = p[ASTRONAUT].speed;
 			p[ASTRONAUT].anim = FALL;
 			viewFocus = ASTRONAUT;
 		}
-		else if (((yStickPos > 50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyZ)) && !isCollision(p[ASTRONAUT].bounds, sfFalse, sfTrue)) {
+		else if (((yStickPos > 50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyZ)) && !isCollision2(p[ASTRONAUT].bounds, sfFalse, sfTrue)) {
 			p[ASTRONAUT].velocity.y = -p[ASTRONAUT].speed;
 			p[ASTRONAUT].anim = JUMP;
 			viewFocus = ASTRONAUT;
@@ -231,6 +234,11 @@ void displayPlayer(Window* _window)
 	
 	sfRectangleShape_setPosition(pRectangle, vector2f(tmpPlayerRect.left, tmpPlayerRect.top));
 	sfRectangleShape_setSize(pRectangle, vector2f(tmpPlayerRect.width, tmpPlayerRect.height));
+	sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 51));
+	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+
+	sfRectangleShape_setPosition(pRectangle, vector2f(tmpPlayerRect2.left, tmpPlayerRect2.top));
+	sfRectangleShape_setSize(pRectangle, vector2f(tmpPlayerRect2.width, tmpPlayerRect2.height));
 	sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 51));
 	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
 	

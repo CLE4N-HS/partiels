@@ -101,13 +101,13 @@ void updateGame(Window* _window)
 
 void displayGame(Window* _window)
 {
+
 	sfRenderTexture_drawSprite(_window->renderTexture, spBG1, NULL);
 	
 	sfRenderTexture_drawSprite(_window->renderTexture, spBG2, NULL);
 
 	displayMap(_window);
 	displayPlayer(_window);
-
 }
 
 void deinitGame()

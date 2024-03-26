@@ -32,9 +32,21 @@ Players p[2];
 
 sfRectangleShape* pRectangle;
 
+playerType viewFocus;
+playerType lastViewFocus;
+float viewTimer;
+sfVector2f lastViewPos;
+
 void initPlayer()
 {
 	pRectangle = sfRectangleShape_create();
+
+	viewFocus = FROG;
+	lastViewFocus = FROG;
+	viewTimer = LERP_VIEW_TIMER;
+	lastViewPos = VECTOR2F_NULL;
+
+
 	for (int i = 0; i < 2; i++)
 	{
 		switch (i)
@@ -73,15 +85,45 @@ void updatePlayer(Window* _window)
 	float xStickPos = getStickPos(0, sfTrue, sfTrue);
 	float yStickPos = getStickPos(0, sfTrue, sfFalse);
 
-	if (((xStickPos < -50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyQ) )&& !isCollision(p[FROG].bounds, sfTrue, sfTrue)) {
-		p[FROG].velocity.x = -p[FROG].speed;
-		p[FROG].anim = RUN;
-		p[FROG].isFlipped = sfTrue;
-	}
-	else if (((xStickPos > 50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyD)) && !isCollision(p[FROG].bounds, sfTrue, sfFalse)) {
-		p[FROG].velocity.x = p[FROG].speed;
-		p[FROG].anim = RUN;
-		p[FROG].isFlipped = sfFalse;
+	if (viewTimer >= LERP_VIEW_TIMER)
+	{
+		if (((xStickPos < -50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyQ)) && !isCollision(p[FROG].bounds, sfTrue, sfTrue)) {
+			p[FROG].velocity.x = -p[FROG].speed;
+			p[FROG].anim = RUN;
+			p[FROG].isFlipped = sfTrue;
+			viewFocus = FROG;
+		}
+		else if (((xStickPos > 50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyD)) && !isCollision(p[FROG].bounds, sfTrue, sfFalse)) {
+			p[FROG].velocity.x = p[FROG].speed;
+			p[FROG].anim = RUN;
+			p[FROG].isFlipped = sfFalse;
+			viewFocus = FROG;
+		}
+		else {
+			p[FROG].anim = IDLE;
+			if (!isGrounded(p[FROG].pos))
+			{
+				p[FROG].anim = FALL;
+				p[FROG].velocity.y += GRAVITY * dt;
+			}
+			else p[FROG].velocity.y = 0.f;
+			p[FROG].velocity.x = 0.f;
+		}
+
+		if (((yStickPos < -50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyS)) && !isCollision(p[ASTRONAUT].bounds, sfFalse, sfFalse)) {
+			p[ASTRONAUT].velocity.y = p[ASTRONAUT].speed;
+			p[ASTRONAUT].anim = FALL;
+			viewFocus = ASTRONAUT;
+		}
+		else if (((yStickPos > 50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyZ)) && !isCollision(p[ASTRONAUT].bounds, sfFalse, sfTrue)) {
+			p[ASTRONAUT].velocity.y = -p[ASTRONAUT].speed;
+			p[ASTRONAUT].anim = JUMP;
+			viewFocus = ASTRONAUT;
+		}
+		else {
+			p[ASTRONAUT].anim = IDLE;
+			p[ASTRONAUT].velocity = VECTOR2F_NULL;
+		}
 	}
 	else {
 		p[FROG].anim = IDLE;
@@ -92,17 +134,7 @@ void updatePlayer(Window* _window)
 		}
 		else p[FROG].velocity.y = 0.f;
 		p[FROG].velocity.x = 0.f;
-	}
 
-	if (((yStickPos < -50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyS)) && !isCollision(p[ASTRONAUT].bounds, sfFalse, sfFalse)) {
-		p[ASTRONAUT].velocity.y = p[ASTRONAUT].speed;
-		p[ASTRONAUT].anim = FALL;
-	}
-	else if (((yStickPos > 50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyZ)) && !isCollision(p[ASTRONAUT].bounds, sfFalse, sfTrue)) {
-		p[ASTRONAUT].velocity.y = -p[ASTRONAUT].speed;
-		p[ASTRONAUT].anim = JUMP;
-	}
-	else {
 		p[ASTRONAUT].anim = IDLE;
 		p[ASTRONAUT].velocity = VECTOR2F_NULL;
 	}
@@ -132,12 +164,7 @@ void updatePlayer(Window* _window)
 				break;
 			}
 
-			if (p[i].isFlipped) {
-				sfSprite_setScale(p[i].sprite, vector2f(-PLAYER_SCALE, PLAYER_SCALE));
-			}
-			else {
-				sfSprite_setScale(p[i].sprite, vector2f(PLAYER_SCALE, PLAYER_SCALE));
-			}
+
 
 
 			p[i].rect.left = 0;
@@ -164,16 +191,37 @@ void updatePlayer(Window* _window)
 		p[i].pos = AddVectors(p[i].pos, MultiplyVector(p[i].velocity, dt));
 
 	}
+	printf("%d, %d, %f\n", viewFocus, lastViewFocus, viewTimer);
+	if (lastViewFocus != viewFocus && viewTimer >= LERP_VIEW_TIMER)
+	{
+		viewTimer = 0.f;
+	}
+	else if (viewTimer < LERP_VIEW_TIMER)
+	{
+		sfVector2f lastViewPos = getPlayerPosInBounds(lastViewFocus);
+		sfVector2f viewPos = getPlayerPosInBounds(viewFocus);
+		if (lastViewPos.x >= viewPos.x - EPSILON && lastViewPos.x <= viewPos.x + EPSILON && lastViewPos.y >= viewPos.y - EPSILON && lastViewPos.y <= viewPos.y + EPSILON)
+			viewTimer = LERP_VIEW_TIMER;
+		else
+			SetViewPosition(mainView, getLerpView(lastViewPos, viewPos));
 
-	SetViewPosition(mainView, getPlayerPosInBounds(FROG));
+		viewTimer += dt;
+		if (viewTimer >= LERP_VIEW_TIMER)
+			lastViewFocus = viewFocus;
+	}
+	else
+	{
+		SetViewPosition(mainView, getPlayerPosInBounds(viewFocus));
+	}
+
 }
 
 void displayPlayer(Window* _window)
 {
-	for (int i = 0; i < 2; i++)
+	for (int i = 1; i >= 0; i--)
 	{
-		//sfSprite_setOrigin(p[i].sprite, p[i].origin);
-		//sfSprite_setTextureRect(p[i].sprite, p[i].rect);
+		if (p[i].isFlipped) sfSprite_setScale(p[i].sprite, vector2f(-PLAYER_SCALE, PLAYER_SCALE));
+		else sfSprite_setScale(p[i].sprite, vector2f(PLAYER_SCALE, PLAYER_SCALE));
 		sfSprite_setPosition(p[i].sprite, p[i].pos);
 		sfSprite_setTextureRect(p[i].sprite, p[i].rect);
 		sfRenderTexture_drawSprite(_window->renderTexture, p[i].sprite, NULL);
@@ -190,7 +238,6 @@ void displayPlayer(Window* _window)
 	sfRectangleShape_setSize(pRectangle, vector2f(tmpRect.width, tmpRect.height));
 	sfRectangleShape_setFillColor(pRectangle, sfBlue);
 	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
-
 }
 
 sfVector2f getPlayerPosInBounds(playerType _type)
@@ -203,4 +250,9 @@ sfVector2f getPlayerPosInBounds(playerType _type)
 	if (pos.y < 540.f) pos.y = 540.f;
 
 	return pos;
+}
+
+sfVector2f getLerpView(sfVector2f _lastViewPos, sfVector2f _viewPos)
+{
+	return LerpVector(_lastViewPos, _viewPos, viewTimer);
 }

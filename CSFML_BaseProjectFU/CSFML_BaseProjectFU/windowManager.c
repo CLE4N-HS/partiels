@@ -57,7 +57,8 @@ Window* windowSetup(const char* _Title, sfVector2i _defaultVideoMode)
 	mainView = setupView(_defaultVideoMode, rectViewPort, This->videoMode);
 
 	// Render Texture
-	This->renderTexture = sfRenderTexture_create(NB_BLOCKS_X * BLOCK_SCALE * BLOCK_SIZE, NB_BLOCKS_X * BLOCK_SCALE * BLOCK_SIZE, sfFalse);
+	//This->renderTexture = sfRenderTexture_create(NB_BLOCKS_X * BLOCK_SCALE * BLOCK_SIZE, NB_BLOCKS_X * BLOCK_SCALE * BLOCK_SIZE, sfFalse);
+	This->renderTexture = sfRenderTexture_create(_defaultVideoMode.x, _defaultVideoMode.y, sfFalse);
 	//allTextures = sfTexture_create(_defaultVideoMode.x, _defaultVideoMode.y);
 	allSprites = sfSprite_create();
 
@@ -125,7 +126,7 @@ void windowUpdate(Window* This)
 
 void windowDraw(Window* This)
 {
-	sfRenderWindow_setView(This->renderWindow, mainView->view);
+	sfRenderTexture_setView(This->renderTexture, mainView->view);
 	stateDisplay(This);
 
 	sfRenderTexture_display(This->renderTexture);

@@ -79,8 +79,11 @@ typedef struct {
 	blockType type;
 	sfVector2f pos;
 	sfIntRect rect;
+	sfBool isSolid;
 }Blocks;
 Blocks b[NB_BLOCKS_Y][NB_BLOCKS_X];
+
+sfFloatRect tmpRect;
 
 void initMap();
 
@@ -91,3 +94,9 @@ void displayMap(Window* _window);
 void defaultMap();
 
 void loadMap(int _nbMap);
+
+sfVector2i getPlayerBlockPos(sfVector2f _pos);
+
+sfBool isGrounded(sfVector2f _pos);
+
+sfBool isCollision(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft);

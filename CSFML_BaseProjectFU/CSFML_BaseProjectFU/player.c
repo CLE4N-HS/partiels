@@ -3,11 +3,7 @@
 #include "gamepadx.h"
 #include "map.h"
 #include "CustomMath.h"
-
-typedef enum {
-	FROG,
-	ASTRONAUT
-}playerType;
+#include "viewManager.h"
 
 typedef enum {
 	NO_ANIM,
@@ -168,6 +164,8 @@ void updatePlayer(Window* _window)
 		p[i].pos = AddVectors(p[i].pos, MultiplyVector(p[i].velocity, dt));
 
 	}
+
+	SetViewPosition(mainView, getPlayerPosInBounds(FROG));
 }
 
 void displayPlayer(Window* _window)
@@ -193,4 +191,16 @@ void displayPlayer(Window* _window)
 	sfRectangleShape_setFillColor(pRectangle, sfBlue);
 	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
 
+}
+
+sfVector2f getPlayerPosInBounds(playerType _type)
+{
+	sfVector2f pos = p[_type].pos;
+
+	if (pos.x > NB_BLOCKS_X * BLOCK_SCALE * BLOCK_SIZE - 960.f) pos.x = NB_BLOCKS_X * BLOCK_SCALE * BLOCK_SIZE - 960.f;
+	if (pos.x < 960.f) pos.x = 960.f;
+	if (pos.y > NB_BLOCKS_Y * BLOCK_SCALE * BLOCK_SIZE - 540.f) pos.y = NB_BLOCKS_Y * BLOCK_SCALE * BLOCK_SIZE - 540.f;
+	if (pos.y < 540.f) pos.y = 540.f;
+
+	return pos;
 }

@@ -178,6 +178,7 @@
     <ClCompile Include="stateManager.c" />
     <ClCompile Include="textureManager.c" />
     <ClCompile Include="tools.c" />
+    <ClCompile Include="view.c" />
     <ClCompile Include="viewManager.c" />
     <ClCompile Include="windowManager.c" />
   </ItemGroup>
@@ -201,6 +202,7 @@
     <ClInclude Include="stateManager.h" />
     <ClInclude Include="textureManager.h" />
     <ClInclude Include="tools.h" />
+    <ClInclude Include="view.h" />
     <ClInclude Include="viewManager.h" />
     <ClInclude Include="windowManager.h" />
   </ItemGroup>

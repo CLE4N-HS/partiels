@@ -6,8 +6,8 @@
 
 #define BLOCK_SCALE 6
 
-#define NB_BLOCKS_X 10
-#define NB_BLOCKS_Y 10
+#define NB_BLOCKS_X 30
+#define NB_BLOCKS_Y 17
 
 int nbMap;
 

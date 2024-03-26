@@ -5,19 +5,39 @@
 
 sfSprite* mapSprite;
 
+float changeMapTimer;
+
 void initMap()
 {
 	mapSprite = sfSprite_create();
 
 	nbMap = 1;
 	loadMap(1);
+	changeMapTimer = 0.f;
 
 	sfSprite_setTexture(mapSprite, GetTexture("castleTiles"), sfFalse);
 }
 
 void updateMap(Window* _window)
 {
+	float dt = getDeltaTime();
+	changeMapTimer += dt;
 
+	int key = 0;
+	if (sfKeyboard_isKeyPressed(sfKeyNumpad1)) key = 1;
+	else if (sfKeyboard_isKeyPressed(sfKeyNumpad2)) key = 2;
+	else if (sfKeyboard_isKeyPressed(sfKeyNumpad3)) key = 3;
+	else if (sfKeyboard_isKeyPressed(sfKeyNumpad4)) key = 4;
+	else if (sfKeyboard_isKeyPressed(sfKeyNumpad5)) key = 5;
+	else if (sfKeyboard_isKeyPressed(sfKeyNumpad6)) key = 6;
+	else if (sfKeyboard_isKeyPressed(sfKeyNumpad7)) key = 7;
+	else if (sfKeyboard_isKeyPressed(sfKeyNumpad8)) key = 8;
+	else if (sfKeyboard_isKeyPressed(sfKeyNumpad9)) key = 9;
+	if (key > 0 && changeMapTimer > 0.5f) {
+		changeMapTimer = 0.f;
+		loadMap(key);
+		nbMap = key;
+	}
 }
 
 void displayMap(Window* _window)
@@ -41,16 +61,16 @@ void defaultMap()
 		for (int i = 0; i < NB_BLOCKS_X; i++)
 		{
 			if (j > 3) {
-				b[j][i].type = T_TOPWALL;
+				b[j][i].type = T_TLIGHTWALL;
 				b[j][i].isSolid = sfTrue;
-				b[j][i].rect = IntRect(0 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				b[j][i].rect = IntRect(1 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 			}
 			else {
-				b[j][i].type = T_NOTILE;
+				b[j][i].type = T_DARKWALL2;
 				b[j][i].isSolid = sfFalse;
-				b[j][i].rect = IntRect(0 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				b[j][i].rect = IntRect(4 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 			}
-			if (i <= 1 || i >= 4)
+			if (i <= 1)
 			{
 				b[j][i].isSolid = sfTrue;
 			}

@@ -60,20 +60,23 @@ void defaultMap()
 	{
 		for (int i = 0; i < NB_BLOCKS_X; i++)
 		{
-			if (j > 3) {
-				b[j][i].type = T_TLIGHTWALL;
-				b[j][i].isSolid = sfTrue;
-				b[j][i].rect = IntRect(1 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			}
-			else {
-				b[j][i].type = T_DARKWALL2;
-				b[j][i].isSolid = sfFalse;
-				b[j][i].rect = IntRect(4 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			}
-			if (i <= 1)
-			{
-				b[j][i].isSolid = sfTrue;
-			}
+			//if (j > 3) {
+			//	b[j][i].type = T_TLIGHTWALL;
+			//	b[j][i].isSolid = sfTrue;
+			//	b[j][i].rect = IntRect(1 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			//}
+			//else {
+			//	b[j][i].type = T_DARKWALL2;
+			//	b[j][i].isSolid = sfFalse;
+			//	b[j][i].rect = IntRect(4 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			//}
+			//if (i <= 1)
+			//{
+			//	b[j][i].isSolid = sfTrue;
+			//}
+			b[j][i].isSolid = sfFalse;
+			b[j][i].type = T_LITTLEWALL;
+			b[j][i].rect = IntRect(0, 0, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 			b[j][i].pos = vector2f(i * BLOCK_SIZE * BLOCK_SCALE, j * BLOCK_SIZE * BLOCK_SCALE);
 		}
 	}
@@ -218,9 +221,15 @@ sfVector2i getPlayerBlockPos(sfVector2f _pos)
 
 sfBool isGrounded(sfVector2f _pos)
 {
-	sfVector2i blockPos = getPlayerBlockPos(vector2f(_pos.x, _pos.y + 48.f));
+	sfVector2i blockPos = getPlayerBlockPos(vector2f(_pos.x - 32.f, _pos.y + 48.f)); // offset to not count the alpha 0
+	sfVector2i blockPos2 = getPlayerBlockPos(vector2f(_pos.x + 32.f, _pos.y + 48.f));
 
-	if (b[blockPos.y][blockPos.x].isSolid) return sfTrue;
+	tmpRect = FlRect(b[blockPos.y][blockPos.x].pos.x, b[blockPos.y][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+	tmpRect2 = FlRect(b[blockPos2.y][blockPos2.x].pos.x, b[blockPos2.y][blockPos2.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+
+	if (b[blockPos.y][blockPos.x].isSolid || b[blockPos2.y][blockPos2.x].isSolid) {
+		return sfTrue;
+	}
 
 	return sfFalse;
 }
@@ -228,7 +237,12 @@ sfBool isGrounded(sfVector2f _pos)
 sfBool isCollision(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 {
 	sfVector2f playerPos = vector2f(_rect.left + 48.f, _rect.top + 48.f);
+	sfVector2f playerPos2 = vector2f(_rect.left + 48.f, _rect.top + 48.f);
 	sfVector2i blockPos = getPlayerBlockPos(playerPos);
+	sfVector2i blockPos2 = getPlayerBlockPos(playerPos2);
+
+	tmpPlayerRect = FlRect(b[blockPos.y][blockPos.x].pos.x, b[blockPos.y][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+
 
 	if (blockPos.y < 0 || blockPos.y >= NB_BLOCKS_Y || blockPos.x < 0 || blockPos.x >= NB_BLOCKS_X) // out of array
 		return sfFalse;
@@ -240,7 +254,7 @@ sfBool isCollision(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 			if (b[blockPos.y][blockPos.x - 1].isSolid)
 			{
 				sfFloatRect blockRect = FlRect(b[blockPos.y][blockPos.x - 1].pos.x, b[blockPos.y][blockPos.x - 1].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
-				tmpRect = blockRect;
+				//tmpRect = blockRect;
 				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
 					return sfTrue;
 			}
@@ -250,7 +264,7 @@ sfBool isCollision(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 			if (b[blockPos.y][blockPos.x + 1].isSolid)
 			{
 				sfFloatRect blockRect = FlRect(b[blockPos.y][blockPos.x + 1].pos.x, b[blockPos.y][blockPos.x + 1].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
-				tmpRect = blockRect;
+				//tmpRect = blockRect;
 				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
 					return sfTrue;
 			}
@@ -263,7 +277,7 @@ sfBool isCollision(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 			if (b[blockPos.y - 1][blockPos.x].isSolid)
 			{
 				sfFloatRect blockRect = FlRect(b[blockPos.y - 1][blockPos.x].pos.x, b[blockPos.y - 1][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
-				tmpRect = blockRect;
+				//tmpRect = blockRect;
 				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
 					return sfTrue;
 			}
@@ -273,7 +287,7 @@ sfBool isCollision(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 			if (b[blockPos.y + 1][blockPos.x].isSolid)
 			{
 				sfFloatRect blockRect = FlRect(b[blockPos.y + 1][blockPos.x].pos.x, b[blockPos.y + 1][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
-				tmpRect = blockRect;
+				//tmpRect = blockRect;
 				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
 					return sfTrue;
 			}

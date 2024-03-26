@@ -1,7 +1,7 @@
 #pragma once
 #include "tools.h"
 
-#define EPSILON (float)1e-6
+#define EPSILON (float)1e-4
 #define DEG2RAD 0.0174533
 #define PI 3.1415926536f
 

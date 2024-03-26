@@ -194,8 +194,7 @@ void updateEditor(Window* _window)
 				return;
 			}
 			b[y][x].type = currentTile;
-			//b[y][x].isSolid = isCollisionEditor;
-			//b[y][x].isVisible = isVisible;
+			b[y][x].isSolid = isCollisionEditor;
 
 			for (int j = 0; j < NB_BLOCKS_Y; j++)
 			{
@@ -204,7 +203,7 @@ void updateEditor(Window* _window)
 					switch (b[j][i].type)
 					{
 					case T_NOTILE: break;
-					case T_TLLIGHTWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
+					case T_TLLIGHTWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
 					case T_TLIGHTWALL: b[j][i].rect = IntRect(1 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_TRLIGHTWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_LIGHTWALL1: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;

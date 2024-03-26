@@ -84,6 +84,8 @@ typedef struct {
 Blocks b[NB_BLOCKS_Y][NB_BLOCKS_X];
 
 sfFloatRect tmpRect;
+sfFloatRect tmpRect2;
+sfFloatRect tmpPlayerRect;
 
 void initMap();
 

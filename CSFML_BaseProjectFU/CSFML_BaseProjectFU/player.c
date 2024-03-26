@@ -101,12 +101,6 @@ void updatePlayer(Window* _window)
 		}
 		else {
 			p[FROG].anim = IDLE;
-			if (!isGrounded(p[FROG].pos))
-			{
-				p[FROG].anim = FALL;
-				p[FROG].velocity.y += GRAVITY * dt;
-			}
-			else p[FROG].velocity.y = 0.f;
 			p[FROG].velocity.x = 0.f;
 		}
 
@@ -127,17 +121,18 @@ void updatePlayer(Window* _window)
 	}
 	else {
 		p[FROG].anim = IDLE;
-		if (!isGrounded(p[FROG].pos))
-		{
-			p[FROG].anim = FALL;
-			p[FROG].velocity.y += GRAVITY * dt;
-		}
-		else p[FROG].velocity.y = 0.f;
 		p[FROG].velocity.x = 0.f;
 
 		p[ASTRONAUT].anim = IDLE;
 		p[ASTRONAUT].velocity = VECTOR2F_NULL;
 	}
+
+	if (!isGrounded(p[FROG].pos))
+	{
+		p[FROG].anim = FALL;
+		p[FROG].velocity.y += GRAVITY * dt;
+	}
+	else p[FROG].velocity.y = 0.f;
 
 	for (int i = 0; i < 2; i++)
 	{
@@ -191,7 +186,7 @@ void updatePlayer(Window* _window)
 		p[i].pos = AddVectors(p[i].pos, MultiplyVector(p[i].velocity, dt));
 
 	}
-	printf("%d, %d, %f\n", viewFocus, lastViewFocus, viewTimer);
+
 	if (lastViewFocus != viewFocus && viewTimer >= LERP_VIEW_TIMER)
 	{
 		viewTimer = 0.f;
@@ -229,14 +224,24 @@ void displayPlayer(Window* _window)
 		p[i].bounds = sfSprite_getGlobalBounds(p[i].sprite);
 	}
 
-	sfRectangleShape_setPosition(pRectangle, vector2f(p[FROG].bounds.left, p[FROG].bounds.top));
-	sfRectangleShape_setSize(pRectangle, vector2f(p[FROG].bounds.width, p[FROG].bounds.height));
-	sfRectangleShape_setFillColor(pRectangle, sfRed);
-	//sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
-
+	sfRectangleShape_setPosition(pRectangle, vector2f(p[viewFocus].bounds.left, p[viewFocus].bounds.top));
+	sfRectangleShape_setSize(pRectangle, vector2f(p[viewFocus].bounds.width, p[viewFocus].bounds.height));
+	sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 0));
+	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	
+	sfRectangleShape_setPosition(pRectangle, vector2f(tmpPlayerRect.left, tmpPlayerRect.top));
+	sfRectangleShape_setSize(pRectangle, vector2f(tmpPlayerRect.width, tmpPlayerRect.height));
+	sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 51));
+	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	
 	sfRectangleShape_setPosition(pRectangle, vector2f(tmpRect.left, tmpRect.top));
 	sfRectangleShape_setSize(pRectangle, vector2f(tmpRect.width, tmpRect.height));
-	sfRectangleShape_setFillColor(pRectangle, sfBlue);
+	sfRectangleShape_setFillColor(pRectangle, color(0, 0, 255, 51));
+	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	
+	sfRectangleShape_setPosition(pRectangle, vector2f(tmpRect2.left, tmpRect2.top));
+	sfRectangleShape_setSize(pRectangle, vector2f(tmpRect2.width, tmpRect2.height));
+	sfRectangleShape_setFillColor(pRectangle, color(0, 255, 255, 51));
 	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
 }
 

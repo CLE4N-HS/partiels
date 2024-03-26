@@ -19,6 +19,6 @@ void updatePlayer(Window* _window);
 
 void displayPlayer(Window* _window);
 
-sfVector2f getPlayerPosInBounds();
+sfVector2f getPlayerPosInBounds(playerType _type);
 
-sfVector2f getLerpView();
+sfVector2f getLerpView(sfVector2f _lastViewPos, sfVector2f _viewPos);

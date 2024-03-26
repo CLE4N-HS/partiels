@@ -16,7 +16,7 @@ void initParticlesSystem()
 	list = STD_LIST_CREATE(Particles, 0);
 	spr = sfSprite_create();
 	circle = sfCircleShape_create();
-	tmpTexture = sfTexture_createFromFile(TEXTURE_PATH"coffre32.png", NULL);
+	//tmpTexture = sfTexture_createFromFile(TEXTURE_PATH"coffre32.png", NULL);
 	tmpIntRect = IntRect(0, 0, 17, 23);
 }
 

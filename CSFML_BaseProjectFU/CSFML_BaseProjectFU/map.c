@@ -1,5 +1,7 @@
 #include "map.h"
 #include "editor.h"
+#include "CustomMath.h"
+#include "player.h"
 
 sfSprite* mapSprite;
 
@@ -38,10 +40,21 @@ void defaultMap()
 	{
 		for (int i = 0; i < NB_BLOCKS_X; i++)
 		{
-			b[j][i].type = T_NOTILE;
-			if (j > 13) b[j][i].type = T_TOPWALL;
+			if (j > 3) {
+				b[j][i].type = T_TOPWALL;
+				b[j][i].isSolid = sfTrue;
+				b[j][i].rect = IntRect(0 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			}
+			else {
+				b[j][i].type = T_NOTILE;
+				b[j][i].isSolid = sfFalse;
+				b[j][i].rect = IntRect(0 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			}
+			if (i <= 1 || i >= 4)
+			{
+				b[j][i].isSolid = sfTrue;
+			}
 			b[j][i].pos = vector2f(i * BLOCK_SIZE * BLOCK_SCALE, j * BLOCK_SIZE * BLOCK_SCALE);
-			b[j][i].rect = IntRect(0 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 		}
 	}
 }
@@ -172,4 +185,80 @@ void loadMap(int _nbMap)
 	default:
 		break;
 	}
+}
+
+sfVector2i getPlayerBlockPos(sfVector2f _pos)
+{
+	sfVector2f fPos = MultiplyVector(_pos, 1.f / BLOCK_SIZE / BLOCK_SCALE);
+	sfVector2i iPos;
+	iPos.x = (int)fPos.x;
+	iPos.y = (int)fPos.y;
+	return iPos;
+}
+
+sfBool isGrounded(sfVector2f _pos)
+{
+	sfVector2i blockPos = getPlayerBlockPos(vector2f(_pos.x, _pos.y + 48.f));
+
+	if (b[blockPos.y][blockPos.x].isSolid) return sfTrue;
+
+	return sfFalse;
+}
+
+sfBool isCollision(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
+{
+	sfVector2f playerPos = vector2f(_rect.left + 48.f, _rect.top + 48.f);
+	sfVector2i blockPos = getPlayerBlockPos(playerPos);
+
+	if (blockPos.y < 0 || blockPos.y >= NB_BLOCKS_Y || blockPos.x < 0 || blockPos.x >= NB_BLOCKS_X) // out of array
+		return sfFalse;
+
+	if (_XAxis)
+	{
+		if (_UpOrLeft && blockPos.x > 0)
+		{
+			if (b[blockPos.y][blockPos.x - 1].isSolid)
+			{
+				sfFloatRect blockRect = FlRect(b[blockPos.y][blockPos.x - 1].pos.x, b[blockPos.y][blockPos.x - 1].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+				tmpRect = blockRect;
+				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
+					return sfTrue;
+			}
+		}
+		else if (!_UpOrLeft && blockPos.x < NB_BLOCKS_X - 1)
+		{
+			if (b[blockPos.y][blockPos.x + 1].isSolid)
+			{
+				sfFloatRect blockRect = FlRect(b[blockPos.y][blockPos.x + 1].pos.x, b[blockPos.y][blockPos.x + 1].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+				tmpRect = blockRect;
+				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
+					return sfTrue;
+			}
+		}
+	}
+	else
+	{
+		if (_UpOrLeft && blockPos.y > 0)
+		{
+			if (b[blockPos.y - 1][blockPos.x].isSolid)
+			{
+				sfFloatRect blockRect = FlRect(b[blockPos.y - 1][blockPos.x].pos.x, b[blockPos.y - 1][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+				tmpRect = blockRect;
+				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
+					return sfTrue;
+			}
+		}
+		else if (!_UpOrLeft && blockPos.y < NB_BLOCKS_Y - 1)
+		{
+			if (b[blockPos.y + 1][blockPos.x].isSolid)
+			{
+				sfFloatRect blockRect = FlRect(b[blockPos.y + 1][blockPos.x].pos.x, b[blockPos.y + 1][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+				tmpRect = blockRect;
+				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
+					return sfTrue;
+			}
+		}
+	}
+
+	return sfFalse;
 }

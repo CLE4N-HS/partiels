@@ -14,6 +14,8 @@
 #define MAP_PATH "..\\Ressources\\Maps\\"
 #define TILESET_PATH "..\\Ressources\\Tilesets\\"
 
+#define VECTOR2F_NULL vector2f(0.f, 0.f)
+
 typedef struct vector4f vector4f;
 struct vector4f
 {

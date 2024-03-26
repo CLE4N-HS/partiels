@@ -19,7 +19,7 @@ sfText* txtCollision;
 sfText* txtNbMap;
 
 sfBool isVisible;
-sfBool isCollision;
+sfBool isCollisionEditor;
 sfBool isEditorHUD;
 
 void initEditor()
@@ -60,7 +60,7 @@ void initEditor()
 	sfText_setPosition(txtNbMap, vector2f(20.f, 980.f));
 	
 	isVisible = sfTrue;
-	isCollision = sfTrue;
+	isCollisionEditor = sfTrue;
 	isEditorHUD = sfFalse;
 	canPlaceTile = sfFalse;
 }
@@ -194,7 +194,7 @@ void updateEditor(Window* _window)
 				return;
 			}
 			b[y][x].type = currentTile;
-			//b[y][x].isSolid = isCollision;
+			//b[y][x].isSolid = isCollisionEditor;
 			//b[y][x].isVisible = isVisible;
 
 			for (int j = 0; j < NB_BLOCKS_Y; j++)
@@ -280,8 +280,8 @@ void updateEditor(Window* _window)
 
 		if (sfKeyboard_isKeyPressed(sfKeyB) && timer > 0.2f)
 		{
-			isCollision = !isCollision;
-			if(isCollision)
+			isCollisionEditor = !isCollisionEditor;
+			if(isCollisionEditor)
 	 			sfText_setString(txtCollision, "B : Collision : YES"); 
 			else
 				sfText_setString(txtCollision, "B : Collision : NO");

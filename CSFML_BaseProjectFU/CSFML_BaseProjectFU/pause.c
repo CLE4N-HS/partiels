@@ -43,7 +43,7 @@ void initPause(Window* _window)
 	sfText_setColor(txtSoundVolume, sfWhite);
 	sfText_setString(txtSoundVolume, "Options");
 
-	texCursor = sfTexture_createFromFile("../Ressources/Textures/cursor.png", NULL);
+	//texCursor = sfTexture_createFromFile("../Ressources/Textures/cursor.png", NULL);
 	spCursor = sfSprite_create();
 	sfSprite_setTexture(spCursor, texCursor, sfTrue);
 	pauseSelect = 0;

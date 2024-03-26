@@ -190,12 +190,11 @@ void updateEditor(Window* _window)
 			int x = getfWorldMousePos(_window->renderWindow).x / BLOCK_SIZE / BLOCK_SCALE;
 			if (x < 0 || y < 0 || y >= NB_BLOCKS_Y ) {
 				printf("DEPASSEMENT DE TABLEAU ");
-				ToggleFullscreen(_window);
+				//ToggleFullscreen(_window);
 				return;
 			}
 			b[y][x].type = currentTile;
-			//b[y][x].isSolid = isCollisionEditor;
-			//b[y][x].isVisible = isVisible;
+			b[y][x].isSolid = sfFalse;
 
 			for (int j = 0; j < NB_BLOCKS_Y; j++)
 			{
@@ -204,54 +203,54 @@ void updateEditor(Window* _window)
 					switch (b[j][i].type)
 					{
 					case T_NOTILE: break;
-					case T_TLLIGHTWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_TLIGHTWALL: b[j][i].rect = IntRect(1 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_TRLIGHTWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_LIGHTWALL1: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_BRICKWALL1: b[j][i].rect = IntRect(4 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
+					case T_TLLIGHTWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_TLIGHTWALL: b[j][i].rect = IntRect(1 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_TRLIGHTWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_LIGHTWALL1: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_BRICKWALL1: b[j][i].rect = IntRect(4 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
 					case T_SIGN: b[j][i].rect = IntRect(5 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_LEVER: b[j][i].rect = IntRect(6 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_BASETORCH: b[j][i].rect = IntRect(7 * BLOCK_SIZE, 0 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 
-					case T_LLIGHTWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
+					case T_LLIGHTWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
 					case T_VOID: b[j][i].rect = IntRect(1 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_RLIGHTWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_LIGHTWALL2: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_BRICKWALL2: b[j][i].rect = IntRect(4 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
+					case T_RLIGHTWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue;  break;
+					case T_LIGHTWALL2: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_BRICKWALL2: b[j][i].rect = IntRect(4 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
 					case T_SWORD: b[j][i].rect = IntRect(5 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_LIGHTSPIKES: b[j][i].rect = IntRect(6 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_SKULLS: b[j][i].rect = IntRect(7 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 
-					case T_BLLIGHTWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_BLIGHTWALL: b[j][i].rect = IntRect(1 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_BRLIGHTWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_DARKWALL1: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
+					case T_BLLIGHTWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_BLIGHTWALL: b[j][i].rect = IntRect(1 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_BRLIGHTWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);b[j][i].isSolid = sfTrue;  break;
+					case T_DARKWALL1: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
 					case T_SIDEBARRILS: b[j][i].rect = IntRect(4 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_LITTLEBARRIL: b[j][i].rect = IntRect(5 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_LEFTCHAIN: b[j][i].rect = IntRect(6 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_RIGHTCHAIN: b[j][i].rect = IntRect(7 * BLOCK_SIZE, 2 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 
-					case T_TLDARKWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_TDARKWALL: b[j][i].rect = IntRect(1 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_TRDARKWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_DARKWALL2: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
+					case T_TLDARKWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_TDARKWALL: b[j][i].rect = IntRect(1 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_TRDARKWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_DARKWALL2: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
 					case T_BIGBARRIL: b[j][i].rect = IntRect(4 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_POT: b[j][i].rect = IntRect(5 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_BOTHCHAIN: b[j][i].rect = IntRect(6 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_DARKSPIKES: b[j][i].rect = IntRect(7 * BLOCK_SIZE, 3 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 
-					case T_LDARKWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
+					case T_LDARKWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
 					case T_EMPTY: b[j][i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_RDARKWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_LEFTPLATFORM: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_PLATFORM: b[j][i].rect = IntRect(4 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_RIGHTPLATFORM: b[j][i].rect = IntRect(5 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
+					case T_RDARKWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_LEFTPLATFORM: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_PLATFORM: b[j][i].rect = IntRect(4 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_RIGHTPLATFORM: b[j][i].rect = IntRect(5 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
 					case T_LEFTWEB: b[j][i].rect = IntRect(6 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_RIGHTWEB: b[j][i].rect = IntRect(7 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 
-					case T_BLDARKWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_BDARKWALL: b[j][i].rect = IntRect(1 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_BRDARKWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
+					case T_BLDARKWALL: b[j][i].rect = IntRect(0 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_BDARKWALL: b[j][i].rect = IntRect(1 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_BRDARKWALL: b[j][i].rect = IntRect(2 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
 					case T_TOPWALL: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_MIDWALL: b[j][i].rect = IntRect(4 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_LITTLEWALL: b[j][i].rect = IntRect(5 * BLOCK_SIZE, 5 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
@@ -261,7 +260,7 @@ void updateEditor(Window* _window)
 					case T_LITTLEBOX:  b[j][i].rect = IntRect(0 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_BIGBOX:  b[j][i].rect = IntRect(1 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_TORCH:  b[j][i].rect = IntRect(2 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
-					case T_BOTTOMWALL: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
+					case T_BOTTOMWALL: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
 					default: break;
 					}
 				}
@@ -495,6 +494,11 @@ void updateEditor(Window* _window)
 		timer = 0.f;
 		togglePause();
 	}
+
+	if (sfKeyboard_isKeyPressed(sfKeyQ)) SetViewPosition(mainView, vector2f(GetViewPosition(mainView).x - 1000.f * dt, GetViewPosition(mainView).y));
+	if (sfKeyboard_isKeyPressed(sfKeyD)) SetViewPosition(mainView, vector2f(GetViewPosition(mainView).x + 1000.f * dt, GetViewPosition(mainView).y));
+	if (sfKeyboard_isKeyPressed(sfKeyS)) SetViewPosition(mainView, vector2f(GetViewPosition(mainView).x, GetViewPosition(mainView).y + 1000.f * dt));
+	if (sfKeyboard_isKeyPressed(sfKeyZ)) SetViewPosition(mainView, vector2f(GetViewPosition(mainView).x, GetViewPosition(mainView).y - 1000.f * dt));
 }
 
 void displayEditor(Window* _window)

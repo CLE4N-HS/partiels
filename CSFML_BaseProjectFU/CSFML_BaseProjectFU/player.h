@@ -4,6 +4,13 @@
 
 #define PLAYER_SCALE 3.f
 #define GRAVITY 30.f
+#define LERP_VIEW_TIMER 1.f
+
+
+typedef enum {
+	FROG,
+	ASTRONAUT
+}playerType;
 
 
 void initPlayer();
@@ -11,3 +18,7 @@ void initPlayer();
 void updatePlayer(Window* _window);
 
 void displayPlayer(Window* _window);
+
+sfVector2f getPlayerPosInBounds(playerType _type);
+
+sfVector2f getLerpView(sfVector2f _lastViewPos, sfVector2f _viewPos);

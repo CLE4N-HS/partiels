@@ -6,8 +6,8 @@
 
 #define BLOCK_SCALE 6
 
-#define NB_BLOCKS_X 10
-#define NB_BLOCKS_Y 10
+#define NB_BLOCKS_X 30
+#define NB_BLOCKS_Y 17
 
 int nbMap;
 
@@ -84,6 +84,9 @@ typedef struct {
 Blocks b[NB_BLOCKS_Y][NB_BLOCKS_X];
 
 sfFloatRect tmpRect;
+sfFloatRect tmpRect2;
+sfFloatRect tmpPlayerRect;
+sfFloatRect tmpPlayerRect2;
 
 void initMap();
 
@@ -98,5 +101,7 @@ void loadMap(int _nbMap);
 sfVector2i getPlayerBlockPos(sfVector2f _pos);
 
 sfBool isGrounded(sfVector2f _pos);
+
+sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft);
 
 sfBool isCollision(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft);

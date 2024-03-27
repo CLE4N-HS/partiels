@@ -3,6 +3,8 @@
 #include "CustomMath.h"
 #include "gamepadx.h"
 
+#define NB_VERTEX 100
+
 typedef struct {
 	sfBool canShow;
 	sfVector2f origin;
@@ -79,6 +81,25 @@ void updateSlingshot(Window* _window)
 	slingshot.vertex[1].position = getPlayerPos(_type);
 
 	customAttract(getPlayerPos(_type), pGetPlayerVelocity(_type), slingshot.basePos, /*600.f*/ GetSqrMagnitude(CreateVector(slingshot.basePos, getPlayerPos(_type))) * 0.02f, 1000.f, dt);
+
+
+	float t = 0.f;
+	sfVector2f tmpVelocity = CreateVector(getPlayerPos(_type), slingshot.basePos);
+	sfVector2f newVelocity = tmpVelocity;
+	for (int i = 0; i < NB_VERTEX; i++)
+	{
+
+		sfVector2f nextPos = MultiplyVector(tmpVelocity, 100.f);
+		tmpVelocity = MultiplyVector(newVelocity, 1.f - SLINGSHOT_DRAG * dt * 2.f);
+		float a = GRAVITY * t * 200.f;
+		nextPos.y += a;
+		sfVertex vertex;
+		vertex.color = sfWhite;
+		vertex.position = AddVectors(slingshot.basePos, MultiplyVector(nextPos, t / 2.f));
+		sfVertexArray_append(vArray, vertex);
+		t = i * 0.1f / NB_VERTEX;
+	}
+
 
 	if (isButtonPressed(0, B) || sfKeyboard_isKeyPressed(sfKeyBackspace))
 	{
@@ -198,6 +219,9 @@ void displayMap(Window* _window)
 	}
 
 	if (slingshot.isInSlingshot) {
+		sfRenderTexture_drawVertexArray(_window->renderTexture, vArray, NULL);
+		sfVertexArray_clear(vArray);
+
 		sfVertexArray_append(vArray, slingshot.vertex[0]);
 		sfVertexArray_append(vArray, slingshot.vertex[1]);
 		sfRenderTexture_drawVertexArray(_window->renderTexture, vArray, NULL);

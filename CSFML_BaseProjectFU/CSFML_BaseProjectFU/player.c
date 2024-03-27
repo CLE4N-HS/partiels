@@ -101,6 +101,7 @@ void updatePlayer(Window* _window)
 
 		p[_type].forward = Normalize(vector2f(xStickPos, -yStickPos));
 		p[_type].velocity = MultiplyVector(p[_type].forward, 100.f);
+		p[_type].anim = IDLE;
 
 		updateSlingshot(_window);
 
@@ -337,6 +338,11 @@ sfVector2f* pGetPlayerPos(playerType _type)
 sfVector2f* pGetPlayerVelocity(playerType _type)
 {
 	return &p[_type].velocity;
+}
+
+sfVector2f getPlayerVelocity(playerType _type)
+{
+	return p[_type].velocity;
 }
 
 void setPlayerLauchingTimer(playerType _type, float _launchingTimer)

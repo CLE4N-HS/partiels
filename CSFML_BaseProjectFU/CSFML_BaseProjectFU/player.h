@@ -37,6 +37,8 @@ sfVector2f* pGetPlayerPos(playerType _type);
 
 sfVector2f* pGetPlayerVelocity(playerType _type);
 
+sfVector2f getPlayerVelocity(playerType _type);
+
 void setPlayerLauchingTimer(playerType _type, float _launchingTimer);
 
 float getPlayerLauchingTimer(playerType _type);

@@ -22,3 +22,15 @@ void displayPlayer(Window* _window);
 sfVector2f getPlayerPosInBounds(playerType _type);
 
 sfVector2f getLerpView(sfVector2f _lastViewPos, sfVector2f _viewPos);
+
+playerType getViewFocus();
+
+sfFloatRect getPlayerRect(playerType _type);
+
+sfVector2f getPlayerPos(playerType _type);
+
+void setPlayerPos(playerType _type, sfVector2f _pos);
+
+sfVector2f* pGetPlayerPos(playerType _type);
+
+sfVector2f* pGetPlayerVelocity(playerType _type);

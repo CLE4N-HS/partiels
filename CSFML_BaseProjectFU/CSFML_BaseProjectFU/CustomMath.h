@@ -270,6 +270,8 @@ sfVector2f Reflect(sfVector2f _i, sfVector2f _n, float _bounciness);
 /// <param name="_range">From what distance to attract</param>
 void Attract(bodies* rb, sfVector2f _center, float _power, float _range);
 
+void customAttract(sfVector2f* _pos, sfVector2f* _velocity, sfVector2f _center, float _power, float _range, float _dt);
+
 /// <summary>
 /// Predicts the force to apply
 /// </summary>

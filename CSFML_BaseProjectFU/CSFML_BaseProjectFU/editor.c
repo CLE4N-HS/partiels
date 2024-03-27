@@ -10,6 +10,9 @@ sfSprite* tileCursor;
 sfSprite* hudEditor;
 sfRectangleShape* rectCursor;
 
+sfSprite* otherSprite;
+sfTexture* slingshotTexture;
+
 int currentTile;
 sfIntRect tileCursorRect;
 sfBool canPlaceTile;
@@ -24,6 +27,9 @@ sfBool isEditorHUD;
 
 void initEditor()
 {
+	otherSprite = sfSprite_create();
+	slingshotTexture = GetTexture("slingshot");
+	
 	//initParallax();
 
 	//initMap();
@@ -176,6 +182,7 @@ void updateEditor(Window* _window)
 			case T_BIGBOX:  tileCursorRect = IntRect(1 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 			case T_TORCH:  tileCursorRect = IntRect(2 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 			case T_BOTTOMWALL: tileCursorRect = IntRect(3 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
+			case T_SLINGSHOT: tileCursorRect = IntRect(0, 0, 66, 209); break;
 			default: break;
 		}
 
@@ -261,6 +268,7 @@ void updateEditor(Window* _window)
 					case T_BIGBOX:  b[j][i].rect = IntRect(1 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_TORCH:  b[j][i].rect = IntRect(2 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_BOTTOMWALL: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
+					case T_SLINGSHOT: b[j][i].rect = IntRect(0, 0, 66, 209); break;
 					default: break;
 					}
 				}
@@ -415,8 +423,11 @@ void updateEditor(Window* _window)
 				currentTile = T_BIGBOX;
 			else if ((mousePosX > 64.f * 2.f && mousePosX < 96.f * 2.f) && (mousePosY > 192.f * 2.f && mousePosY < 224.f * 2.f))
 				currentTile = T_TORCH;
-			else if ((mousePosX > 0.f * 2.f && mousePosX < 128.f * 2.f) && (mousePosY > 192.f * 2.f && mousePosY < 224.f * 2.f))
+			else if ((mousePosX > 96.f * 2.f && mousePosX < 128.f * 2.f) && (mousePosY > 192.f * 2.f && mousePosY < 224.f * 2.f))
 				currentTile = T_BOTTOMWALL;
+			else if ((mousePosX > 128.f * 2.f && mousePosX < 160.f * 2.f) && (mousePosY > 192.f * 2.f && mousePosY < 224.f * 2.f))
+				currentTile = T_SLINGSHOT;
+
 
 			else
 				canPlaceTile = sfFalse;
@@ -507,6 +518,9 @@ void displayEditor(Window* _window)
 	//displayParallax(_window);
 	displayMap(_window);
 	/// TILE CURSOR
+	if (currentTile == T_SLINGSHOT)	sfSprite_setTexture(tileCursor, GetTexture("slingshot"), sfFalse);
+	else sfSprite_setTexture(tileCursor, GetTexture("castleTiles"), sfFalse);
+
 	sfSprite_setTextureRect(tileCursor, tileCursorRect);
 	
 	sfSprite_setPosition(tileCursor, vector2f(getfWorldMousePos(_window->renderWindow).x, getfWorldMousePos(_window->renderWindow).y));

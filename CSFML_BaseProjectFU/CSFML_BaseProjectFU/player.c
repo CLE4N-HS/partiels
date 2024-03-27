@@ -23,6 +23,7 @@ typedef struct {
 	sfFloatRect bounds;
 	sfVector2f pos;
 	sfVector2f velocity;
+	sfVector2f forward;
 
 	float speed;
 	float animTimer;
@@ -71,6 +72,7 @@ void initPlayer()
 		p[i].speed = 500.f;
 		p[i].animTimer = 0.f;
 		p[i].isFlipped = sfFalse;
+		p[i].forward = VECTOR2F_NULL;
 
 		p[i].sprite = sfSprite_create();
 		sfSprite_setOrigin(p[i].sprite, vector2f(16.f, 16.f));
@@ -81,14 +83,22 @@ void updatePlayer(Window* _window)
 {
 	float dt = getDeltaTime();
 
+	// to remove
+	if (sfKeyboard_isKeyPressed(sfKeyA)) p[FROG].pos = vector2f(300.f, 520.f);
+	if (sfKeyboard_isKeyPressed(sfKeyE)) p[ASTRONAUT].pos = p[FROG].pos;
+
 	// movement
 	float xStickPos = getStickPos(0, sfTrue, sfTrue);
 	float yStickPos = getStickPos(0, sfTrue, sfFalse);
 
-	if (sfKeyboard_isKeyPressed(sfKeyA)) p[FROG].pos = vector2f(300.f, 520.f);
-	if (sfKeyboard_isKeyPressed(sfKeyE)) p[ASTRONAUT].pos = p[FROG].pos;
+	if (isSomeoneInSlingshot())
+	{
+		//playerType _type = getWhoIsInSlingshot();
 
-	if (viewTimer >= LERP_VIEW_TIMER)
+		//p[_type].forward = Normalize(vector2f(xStickPos, yStickPos));
+
+	}
+	else if (viewTimer >= LERP_VIEW_TIMER)
 	{
 		if (((xStickPos < -50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyQ)) && !isCollision2(p[FROG].bounds, sfTrue, sfTrue)) {
 			p[FROG].velocity.x = -p[FROG].speed;
@@ -227,30 +237,30 @@ void displayPlayer(Window* _window)
 		p[i].bounds = sfSprite_getGlobalBounds(p[i].sprite);
 	}
 
-	sfRectangleShape_setPosition(pRectangle, vector2f(p[viewFocus].bounds.left, p[viewFocus].bounds.top));
-	sfRectangleShape_setSize(pRectangle, vector2f(p[viewFocus].bounds.width, p[viewFocus].bounds.height));
-	sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 0));
-	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
-	
-	sfRectangleShape_setPosition(pRectangle, vector2f(tmpPlayerRect.left, tmpPlayerRect.top));
-	sfRectangleShape_setSize(pRectangle, vector2f(tmpPlayerRect.width, tmpPlayerRect.height));
-	sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 51));
-	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
-
-	sfRectangleShape_setPosition(pRectangle, vector2f(tmpPlayerRect2.left, tmpPlayerRect2.top));
-	sfRectangleShape_setSize(pRectangle, vector2f(tmpPlayerRect2.width, tmpPlayerRect2.height));
-	sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 51));
-	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
-	
-	sfRectangleShape_setPosition(pRectangle, vector2f(tmpRect.left, tmpRect.top));
-	sfRectangleShape_setSize(pRectangle, vector2f(tmpRect.width, tmpRect.height));
-	sfRectangleShape_setFillColor(pRectangle, color(0, 0, 255, 51));
-	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
-	
-	sfRectangleShape_setPosition(pRectangle, vector2f(tmpRect2.left, tmpRect2.top));
-	sfRectangleShape_setSize(pRectangle, vector2f(tmpRect2.width, tmpRect2.height));
-	sfRectangleShape_setFillColor(pRectangle, color(0, 255, 255, 51));
-	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	//sfRectangleShape_setPosition(pRectangle, vector2f(p[viewFocus].bounds.left, p[viewFocus].bounds.top));
+	//sfRectangleShape_setSize(pRectangle, vector2f(p[viewFocus].bounds.width, p[viewFocus].bounds.height));
+	//sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 0));
+	//sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	//
+	//sfRectangleShape_setPosition(pRectangle, vector2f(tmpPlayerRect.left, tmpPlayerRect.top));
+	//sfRectangleShape_setSize(pRectangle, vector2f(tmpPlayerRect.width, tmpPlayerRect.height));
+	//sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 51));
+	//sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	//
+	//sfRectangleShape_setPosition(pRectangle, vector2f(tmpPlayerRect2.left, tmpPlayerRect2.top));
+	//sfRectangleShape_setSize(pRectangle, vector2f(tmpPlayerRect2.width, tmpPlayerRect2.height));
+	//sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 51));
+	//sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	//
+	//sfRectangleShape_setPosition(pRectangle, vector2f(tmpRect.left, tmpRect.top));
+	//sfRectangleShape_setSize(pRectangle, vector2f(tmpRect.width, tmpRect.height));
+	//sfRectangleShape_setFillColor(pRectangle, color(0, 0, 255, 51));
+	//sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	//
+	//sfRectangleShape_setPosition(pRectangle, vector2f(tmpRect2.left, tmpRect2.top));
+	//sfRectangleShape_setSize(pRectangle, vector2f(tmpRect2.width, tmpRect2.height));
+	//sfRectangleShape_setFillColor(pRectangle, color(0, 255, 255, 51));
+	//sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
 }
 
 sfVector2f getPlayerPosInBounds(playerType _type)
@@ -268,4 +278,34 @@ sfVector2f getPlayerPosInBounds(playerType _type)
 sfVector2f getLerpView(sfVector2f _lastViewPos, sfVector2f _viewPos)
 {
 	return LerpVector(_lastViewPos, _viewPos, viewTimer);
+}
+
+playerType getViewFocus()
+{
+	return viewFocus;
+}
+
+sfFloatRect getPlayerRect(playerType _type)
+{
+	return p[_type].bounds;
+}
+
+sfVector2f getPlayerPos(playerType _type)
+{
+	return p[_type].pos;
+}
+
+void setPlayerPos(playerType _type, sfVector2f _pos)
+{
+	p[_type].pos = _pos;
+}
+
+sfVector2f* pGetPlayerPos(playerType _type)
+{
+	return &p[_type].pos;
+}
+
+sfVector2f* pGetPlayerVelocity(playerType _type)
+{
+	return &p[_type].velocity;
 }

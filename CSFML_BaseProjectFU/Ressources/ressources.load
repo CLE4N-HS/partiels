@@ -12,4 +12,6 @@ single astronautFall ../Ressources/Textures/GAME/players/astronaut/fall.png
 single frogFall ../Ressources/Textures/GAME/players/frog/fall.png
 
 single castleTiles ../Ressources/Textures/GAME/tiles/castleTiles.png
+single slingshot ../Ressources/Textures/GAME/objects/slingshot.png
+single xboxA ../Ressources/Textures/GAME/objects/xboxA.png
 [end]

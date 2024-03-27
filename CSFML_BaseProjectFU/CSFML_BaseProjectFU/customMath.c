@@ -167,6 +167,11 @@ void AddForce(bodies* rb, sfVector2f _force, sfBool usingMass)
 	rb->velocity = AddVectors(rb->velocity, MultiplyVector(_force, 1.f / massToApply));
 }
 
+void customAddForce(sfVector2f* _velocity, sfVector2f _force)
+{
+	*_velocity = AddVectors(*_velocity, _force);
+}
+
 void AddForceAtPosition(bodies* rb, sfVector2f _force, sfVector2f _pos)
 {
 	if (rb->isKinematic) return;
@@ -201,6 +206,16 @@ void Attract(bodies* rb, sfVector2f _center, float _power, float _range)
 	//float force = MAX(0.f, ((_range, -dist) * (_range - dist)) / (_range * _range));
 	float force = (maxed * maxed) / (_range * _range) * _power;
 	AddForce(rb, MultiplyVector(rbToCenter, force * getDeltaTime()), sfTrue);
+}
+
+void customAttract(sfVector2f _pos, sfVector2f* _velocity, sfVector2f _center, float _power, float _range, float _dt)
+{
+	sfVector2f rbToCenter = CreateVector(_pos, _center);
+	float dist = GetMagnitude(rbToCenter);
+	float maxed = MAX(0.f, (_range - dist));
+	//float force = MAX(0.f, ((_range, -dist) * (_range - dist)) / (_range * _range));
+	float force = (maxed * maxed) / (_range * _range) * _power;
+	customAddForce(_velocity, MultiplyVector(rbToCenter, force * _dt));
 }
 
 // using mass, _time to 1.f to ignore it

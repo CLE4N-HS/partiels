@@ -1,9 +1,36 @@
 #include "map.h"
 #include "editor.h"
 #include "CustomMath.h"
-#include "player.h"
+#include "gamepadx.h"
+
+typedef struct {
+	sfBool canShow;
+	sfVector2f origin;
+	sfVector2f pos;
+	sfVector2f scale;
+	float timer;
+}xboxAButton;
+xboxAButton xboxA;
 
 sfSprite* mapSprite;
+
+sfTexture* castleTexture;
+sfTexture* slingshotTexture;
+sfTexture* xboxATexture;
+
+sfVertexArray* vArray;
+
+typedef struct {
+	sfBool isInSlingshot;
+	playerType type;
+	sfVector2f forward;
+	sfVector2f basePos;
+	sfVector2f oldPlayerPos;
+	sfVertex vertex[3];
+	sfBool canLaunch;
+}Slingshot;
+Slingshot slingshot;
+
 
 float changeMapTimer;
 
@@ -15,12 +42,112 @@ void initMap()
 	loadMap(1);
 	changeMapTimer = 0.f;
 
-	sfSprite_setTexture(mapSprite, GetTexture("castleTiles"), sfFalse);
+	castleTexture = GetTexture("castleTiles");
+	slingshotTexture = GetTexture("slingshot");
+	xboxATexture = GetTexture("xboxA");
+
+	vArray = sfVertexArray_create();
+	sfVertexArray_setPrimitiveType(vArray, sfLineStrip);
+
+	xboxA.canShow = sfFalse;
+	xboxA.origin = vector2f(64.f, 64.f);
+	xboxA.scale = VECTOR2F_NULL;
+	xboxA.pos = VECTOR2F_NULL;
+	xboxA.timer = 0.f;
+
+	slingshot.isInSlingshot = sfFalse;
+	slingshot.type = FROG;
+	slingshot.forward = VECTOR2F_NULL;
+	slingshot.basePos = VECTOR2F_NULL;
+	slingshot.oldPlayerPos = VECTOR2F_NULL;
+	for (int i = 0; i < 3; i++)
+	{
+		slingshot.vertex[i].color = color(48, 22, 8, 255);
+		slingshot.vertex[i].position = VECTOR2F_NULL;
+	}
+	slingshot.canLaunch = sfFalse;
+
+	sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
+}
+
+void updateSlingshot(Window* _window)
+{
+	float dt = getDeltaTime();
+
+	playerType _type = slingshot.type;
+
+	slingshot.vertex[1].position = getPlayerPos(_type);
+
+	customAttract(getPlayerPos(_type), pGetPlayerVelocity(_type), slingshot.basePos, /*600.f*/ GetSqrMagnitude(CreateVector(slingshot.basePos, getPlayerPos(_type))) * 0.02f, 1000.f, dt);
+
+	if (isButtonPressed(0, B) || sfKeyboard_isKeyPressed(sfKeyBackspace))
+	{
+		setPlayerPos(_type, slingshot.oldPlayerPos);
+		slingshot.isInSlingshot = sfFalse;
+	}
+
+	if (!slingshot.canLaunch && !isButtonPressed(0, A) && !sfKeyboard_isKeyPressed(sfKeyEnter))
+	{
+		slingshot.canLaunch = sfTrue;
+	}
+
+	if (slingshot.canLaunch && (isButtonPressed(0, A) || sfKeyboard_isKeyPressed(sfKeyEnter)))
+	{
+		customAddForce(pGetPlayerVelocity(_type), MultiplyVector(CreateVector(getPlayerPos(_type), slingshot.basePos), 10.f));
+		slingshot.isInSlingshot = sfFalse;
+		setPlayerLauchingTimer(_type, 0.f);
+	}
 }
 
 void updateMap(Window* _window)
 {
 	float dt = getDeltaTime();
+
+	playerType _viewFocus = getViewFocus();
+	sfFloatRect _bounds = getPlayerRect(_viewFocus);
+	xboxA.canShow = sfFalse;
+
+	for (int j = 0; j < NB_BLOCKS_Y; j++)
+	{
+		for (int i = 0; i < NB_BLOCKS_X; i++)
+		{
+			sfFloatRect blockRect = FlRect(b[j][i].pos.x, b[j][i].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+			switch (b[j][i].type)
+			{
+			case T_SLINGSHOT:
+				if (!slingshot.isInSlingshot && getPlayerLauchingTimer(_viewFocus) >= LAUNCHING_TIMER_DURATION && sfFloatRect_intersects(&_bounds, &blockRect, NULL))
+				{
+					xboxA.canShow = sfTrue;
+					xboxA.pos = AddVectors(b[j][i].pos, vector2f(64.f, 64.f));
+					xboxA.timer += dt;
+					float sin = (fabs(sinf(xboxA.timer)) + 0.5f) * 0.5f;
+					xboxA.scale = vector2f(sin / 2.f, sin / 2.f);
+
+					if (isButtonPressed(0, A) || sfKeyboard_isKeyPressed(sfKeyEnter))
+					{
+						slingshot.type = _viewFocus;
+						slingshot.isInSlingshot = sfTrue;
+						slingshot.basePos = AddVectors(b[j][i].pos, vector2f(64.f, 64.f));
+						slingshot.oldPlayerPos = getPlayerPos(slingshot.type);
+						slingshot.vertex[0].position = AddVectors(b[j][i].pos, vector2f(56.f * 2.f, 38.f));
+						slingshot.vertex[2].position = AddVectors(b[j][i].pos, vector2f(14.f, 36.f));
+						slingshot.canLaunch = sfFalse;
+						setPlayerPos(slingshot.type, slingshot.basePos);
+					}
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	// reset xboxA button
+	if (!xboxA.canShow) {
+		xboxA.scale = VECTOR2F_NULL;
+		xboxA.timer = 0.f;
+	}
+
 	changeMapTimer += dt;
 
 	int key = 0;
@@ -46,12 +173,78 @@ void displayMap(Window* _window)
 	{
 		for (int i = 0; i < NB_BLOCKS_X; i++)
 		{
+			switch (b[j][i].type)
+			{
+			case T_SLINGSHOT:
+				if (!slingshot.isInSlingshot) {
+					sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
+					sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
+					sfSprite_setTextureRect(mapSprite, IntRect(66, 0, 44, 209));
+					sfSprite_setPosition(mapSprite, b[j][i].pos);
+					sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+				}
+				sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
+				sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
+				break;
+			default:
+				sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
+				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+				break;
+			}
 			sfSprite_setTextureRect(mapSprite, b[j][i].rect);
 			sfSprite_setPosition(mapSprite, b[j][i].pos);
-			sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
 			sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
 		}
 	}
+
+	if (slingshot.isInSlingshot) {
+		sfVertexArray_append(vArray, slingshot.vertex[0]);
+		sfVertexArray_append(vArray, slingshot.vertex[1]);
+		sfRenderTexture_drawVertexArray(_window->renderTexture, vArray, NULL);
+		sfVertexArray_clear(vArray);
+	}
+}
+
+void displayObjects(Window* _window)
+{
+	if (slingshot.isInSlingshot) {
+		sfVertexArray_append(vArray, slingshot.vertex[2]);
+		sfVertexArray_append(vArray, slingshot.vertex[1]);
+		sfRenderTexture_drawVertexArray(_window->renderTexture, vArray, NULL);
+		sfVertexArray_clear(vArray);
+	}
+
+	for (int j = 0; j < NB_BLOCKS_Y; j++)
+	{
+		for (int i = 0; i < NB_BLOCKS_X; i++)
+		{
+			switch (b[j][i].type)
+			{
+			case T_SLINGSHOT:
+				if (slingshot.isInSlingshot) {
+					sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
+					sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
+					sfSprite_setTextureRect(mapSprite, IntRect(66, 0, 44, 209));
+					sfSprite_setPosition(mapSprite, b[j][i].pos);
+					sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	if (xboxA.canShow)
+	{
+		sfSprite_setTexture(mapSprite, xboxATexture, sfTrue);
+		sfSprite_setOrigin(mapSprite, xboxA.origin);
+		sfSprite_setScale(mapSprite, xboxA.scale);
+		sfSprite_setPosition(mapSprite, xboxA.pos);
+		sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+	}
+
+	sfSprite_setOrigin(mapSprite, VECTOR2F_NULL);
 }
 
 void defaultMap()
@@ -234,6 +427,11 @@ sfBool isGrounded(sfVector2f _pos)
 	return sfFalse;
 }
 
+sfBool isCollision3(sfFloatRect _rect, sfVector2f* _velocity)
+{
+
+}
+
 sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 {
 	sfVector2f playerPos = VECTOR2F_NULL;
@@ -409,4 +607,19 @@ sfBool isCollision(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 	}
 
 	return sfFalse;
+}
+
+sfBool isSomeoneInSlingshot()
+{
+	return slingshot.isInSlingshot;
+}
+
+playerType getWhoIsInSlingshot()
+{
+	return slingshot.type;
+}
+
+sfVector2f getSlingshotBasePos()
+{
+	return slingshot.basePos;
 }

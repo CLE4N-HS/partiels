@@ -108,6 +108,7 @@ void displayGame(Window* _window)
 
 	displayMap(_window);
 	displayPlayer(_window);
+	displayObjects(_window);
 }
 
 void deinitGame()

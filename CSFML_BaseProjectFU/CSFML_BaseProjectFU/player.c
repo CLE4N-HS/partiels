@@ -11,6 +11,7 @@ typedef enum {
 	RUN,
 	JUMP,
 	FALL,
+	THROW
 }playerAnim;
 
 typedef struct {
@@ -23,10 +24,13 @@ typedef struct {
 	sfFloatRect bounds;
 	sfVector2f pos;
 	sfVector2f velocity;
+	sfVector2f forward;
 
 	float speed;
 	float animTimer;
 	sfBool isFlipped;
+
+	float lauchingTimer;
 }Players;
 Players p[2];
 
@@ -71,6 +75,8 @@ void initPlayer()
 		p[i].speed = 500.f;
 		p[i].animTimer = 0.f;
 		p[i].isFlipped = sfFalse;
+		p[i].forward = VECTOR2F_NULL;
+		p[i].lauchingTimer = LAUNCHING_TIMER_DURATION;
 
 		p[i].sprite = sfSprite_create();
 		sfSprite_setOrigin(p[i].sprite, vector2f(16.f, 16.f));
@@ -81,14 +87,28 @@ void updatePlayer(Window* _window)
 {
 	float dt = getDeltaTime();
 
+	// to remove
+	if (sfKeyboard_isKeyPressed(sfKeyA)) p[FROG].pos = vector2f(300.f, 520.f);
+	if (sfKeyboard_isKeyPressed(sfKeyE)) p[ASTRONAUT].pos = p[FROG].pos;
+
 	// movement
 	float xStickPos = getStickPos(0, sfTrue, sfTrue);
 	float yStickPos = getStickPos(0, sfTrue, sfFalse);
 
-	if (sfKeyboard_isKeyPressed(sfKeyA)) p[FROG].pos = vector2f(300.f, 520.f);
-	if (sfKeyboard_isKeyPressed(sfKeyE)) p[ASTRONAUT].pos = p[FROG].pos;
+	if (isSomeoneInSlingshot())
+	{
+		playerType _type = getWhoIsInSlingshot();
 
-	if (viewTimer >= LERP_VIEW_TIMER)
+		p[_type].forward = Normalize(vector2f(xStickPos, -yStickPos));
+		p[_type].velocity = MultiplyVector(p[_type].forward, 100.f);
+
+		updateSlingshot(_window);
+
+		if (p[_type].pos.x > getSlingshotBasePos().x) p[_type].isFlipped = sfTrue;
+		else p[_type].isFlipped = sfFalse;
+
+	}
+	else if (viewTimer >= LERP_VIEW_TIMER && p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
 	{
 		if (((xStickPos < -50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyQ)) && !isCollision2(p[FROG].bounds, sfTrue, sfTrue)) {
 			p[FROG].velocity.x = -p[FROG].speed;
@@ -124,18 +144,30 @@ void updatePlayer(Window* _window)
 	}
 	else {
 		p[FROG].anim = IDLE;
-		p[FROG].velocity.x = 0.f;
+		if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+			p[FROG].velocity.x = 0.f;
 
 		p[ASTRONAUT].anim = IDLE;
-		p[ASTRONAUT].velocity = VECTOR2F_NULL;
+		if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+			p[ASTRONAUT].velocity = VECTOR2F_NULL;
 	}
 
-	if (!isGrounded(p[FROG].pos))
+	if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
 	{
-		p[FROG].anim = FALL;
-		p[FROG].velocity.y += GRAVITY * dt;
+		if (!isGrounded(p[FROG].pos))
+		{
+			p[FROG].anim = FALL;
+			p[FROG].velocity.y += GRAVITY * dt;
+		}
+		else p[FROG].velocity.y = 0.f;
 	}
-	else p[FROG].velocity.y = 0.f;
+	else
+	{
+		p[viewFocus].lauchingTimer += dt;
+		p[viewFocus].velocity = MultiplyVector(p[viewFocus].velocity, 1.f - SLINGSHOT_DRAG * dt);
+		p[viewFocus].velocity = AddVectors(p[viewFocus].velocity, MultiplyVector(vector2f(0.f, SLINGSHOT_GRAVITY), dt));
+		p[viewFocus].anim = THROW;
+	}
 
 	for (int i = 0; i < 2; i++)
 	{
@@ -158,6 +190,10 @@ void updatePlayer(Window* _window)
 				if (i == FROG) sfSprite_setTexture(p[i].sprite, GetTexture("frogFall"), sfTrue);
 				else sfSprite_setTexture(p[i].sprite, GetTexture("astronautFall"), sfTrue);
 				break;
+			case THROW:
+				if (i == FROG) sfSprite_setTexture(p[i].sprite, GetTexture("frogThrow"), sfFalse);
+				else sfSprite_setTexture(p[i].sprite, GetTexture("astronautThrow"), sfFalse);
+				break;
 			default:
 				break;
 			}
@@ -179,6 +215,9 @@ void updatePlayer(Window* _window)
 			break;
 		case RUN:
 			Animator(&p[i].rect, &p[i].animTimer, 12, 1, 0.075f, 0.f);
+			break;
+		case THROW:
+			Animator(&p[i].rect, &p[i].animTimer, 6, 1, 0.04f, 0.f);
 			break;
 		default:
 			break;
@@ -227,30 +266,30 @@ void displayPlayer(Window* _window)
 		p[i].bounds = sfSprite_getGlobalBounds(p[i].sprite);
 	}
 
-	sfRectangleShape_setPosition(pRectangle, vector2f(p[viewFocus].bounds.left, p[viewFocus].bounds.top));
-	sfRectangleShape_setSize(pRectangle, vector2f(p[viewFocus].bounds.width, p[viewFocus].bounds.height));
-	sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 0));
-	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
-	
-	sfRectangleShape_setPosition(pRectangle, vector2f(tmpPlayerRect.left, tmpPlayerRect.top));
-	sfRectangleShape_setSize(pRectangle, vector2f(tmpPlayerRect.width, tmpPlayerRect.height));
-	sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 51));
-	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
-
-	sfRectangleShape_setPosition(pRectangle, vector2f(tmpPlayerRect2.left, tmpPlayerRect2.top));
-	sfRectangleShape_setSize(pRectangle, vector2f(tmpPlayerRect2.width, tmpPlayerRect2.height));
-	sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 51));
-	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
-	
-	sfRectangleShape_setPosition(pRectangle, vector2f(tmpRect.left, tmpRect.top));
-	sfRectangleShape_setSize(pRectangle, vector2f(tmpRect.width, tmpRect.height));
-	sfRectangleShape_setFillColor(pRectangle, color(0, 0, 255, 51));
-	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
-	
-	sfRectangleShape_setPosition(pRectangle, vector2f(tmpRect2.left, tmpRect2.top));
-	sfRectangleShape_setSize(pRectangle, vector2f(tmpRect2.width, tmpRect2.height));
-	sfRectangleShape_setFillColor(pRectangle, color(0, 255, 255, 51));
-	sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	//sfRectangleShape_setPosition(pRectangle, vector2f(p[viewFocus].bounds.left, p[viewFocus].bounds.top));
+	//sfRectangleShape_setSize(pRectangle, vector2f(p[viewFocus].bounds.width, p[viewFocus].bounds.height));
+	//sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 0));
+	//sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	//
+	//sfRectangleShape_setPosition(pRectangle, vector2f(tmpPlayerRect.left, tmpPlayerRect.top));
+	//sfRectangleShape_setSize(pRectangle, vector2f(tmpPlayerRect.width, tmpPlayerRect.height));
+	//sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 51));
+	//sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	//
+	//sfRectangleShape_setPosition(pRectangle, vector2f(tmpPlayerRect2.left, tmpPlayerRect2.top));
+	//sfRectangleShape_setSize(pRectangle, vector2f(tmpPlayerRect2.width, tmpPlayerRect2.height));
+	//sfRectangleShape_setFillColor(pRectangle, color(255, 0, 0, 51));
+	//sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	//
+	//sfRectangleShape_setPosition(pRectangle, vector2f(tmpRect.left, tmpRect.top));
+	//sfRectangleShape_setSize(pRectangle, vector2f(tmpRect.width, tmpRect.height));
+	//sfRectangleShape_setFillColor(pRectangle, color(0, 0, 255, 51));
+	//sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
+	//
+	//sfRectangleShape_setPosition(pRectangle, vector2f(tmpRect2.left, tmpRect2.top));
+	//sfRectangleShape_setSize(pRectangle, vector2f(tmpRect2.width, tmpRect2.height));
+	//sfRectangleShape_setFillColor(pRectangle, color(0, 255, 255, 51));
+	//sfRenderTexture_drawRectangleShape(_window->renderTexture, pRectangle, NULL);
 }
 
 sfVector2f getPlayerPosInBounds(playerType _type)
@@ -268,4 +307,44 @@ sfVector2f getPlayerPosInBounds(playerType _type)
 sfVector2f getLerpView(sfVector2f _lastViewPos, sfVector2f _viewPos)
 {
 	return LerpVector(_lastViewPos, _viewPos, viewTimer);
+}
+
+playerType getViewFocus()
+{
+	return viewFocus;
+}
+
+sfFloatRect getPlayerRect(playerType _type)
+{
+	return p[_type].bounds;
+}
+
+sfVector2f getPlayerPos(playerType _type)
+{
+	return p[_type].pos;
+}
+
+void setPlayerPos(playerType _type, sfVector2f _pos)
+{
+	p[_type].pos = _pos;
+}
+
+sfVector2f* pGetPlayerPos(playerType _type)
+{
+	return &p[_type].pos;
+}
+
+sfVector2f* pGetPlayerVelocity(playerType _type)
+{
+	return &p[_type].velocity;
+}
+
+void setPlayerLauchingTimer(playerType _type, float _launchingTimer)
+{
+	p[_type].lauchingTimer = _launchingTimer;
+}
+
+float getPlayerLauchingTimer(playerType _type)
+{
+	return p[_type].lauchingTimer;
 }

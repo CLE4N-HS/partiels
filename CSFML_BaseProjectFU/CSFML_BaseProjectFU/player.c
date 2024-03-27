@@ -11,6 +11,7 @@ typedef enum {
 	RUN,
 	JUMP,
 	FALL,
+	THROW
 }playerAnim;
 
 typedef struct {
@@ -107,7 +108,7 @@ void updatePlayer(Window* _window)
 		else p[_type].isFlipped = sfFalse;
 
 	}
-	else if (viewTimer >= LERP_VIEW_TIMER)
+	else if (viewTimer >= LERP_VIEW_TIMER && p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
 	{
 		if (((xStickPos < -50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyQ)) && !isCollision2(p[FROG].bounds, sfTrue, sfTrue)) {
 			p[FROG].velocity.x = -p[FROG].speed;
@@ -143,10 +144,12 @@ void updatePlayer(Window* _window)
 	}
 	else {
 		p[FROG].anim = IDLE;
-		p[FROG].velocity.x = 0.f;
+		if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+			p[FROG].velocity.x = 0.f;
 
 		p[ASTRONAUT].anim = IDLE;
-		p[ASTRONAUT].velocity = VECTOR2F_NULL;
+		if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+			p[ASTRONAUT].velocity = VECTOR2F_NULL;
 	}
 
 	if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
@@ -161,7 +164,9 @@ void updatePlayer(Window* _window)
 	else
 	{
 		p[viewFocus].lauchingTimer += dt;
-		printf("%f, %f\n", p[viewFocus].velocity.x, p[viewFocus].velocity.y);
+		p[viewFocus].velocity = MultiplyVector(p[viewFocus].velocity, 1.f - SLINGSHOT_DRAG * dt);
+		p[viewFocus].velocity = AddVectors(p[viewFocus].velocity, MultiplyVector(vector2f(0.f, SLINGSHOT_GRAVITY), dt));
+		p[viewFocus].anim = THROW;
 	}
 
 	for (int i = 0; i < 2; i++)
@@ -185,6 +190,10 @@ void updatePlayer(Window* _window)
 				if (i == FROG) sfSprite_setTexture(p[i].sprite, GetTexture("frogFall"), sfTrue);
 				else sfSprite_setTexture(p[i].sprite, GetTexture("astronautFall"), sfTrue);
 				break;
+			case THROW:
+				if (i == FROG) sfSprite_setTexture(p[i].sprite, GetTexture("frogThrow"), sfFalse);
+				else sfSprite_setTexture(p[i].sprite, GetTexture("astronautThrow"), sfFalse);
+				break;
 			default:
 				break;
 			}
@@ -206,6 +215,9 @@ void updatePlayer(Window* _window)
 			break;
 		case RUN:
 			Animator(&p[i].rect, &p[i].animTimer, 12, 1, 0.075f, 0.f);
+			break;
+		case THROW:
+			Animator(&p[i].rect, &p[i].animTimer, 6, 1, 0.04f, 0.f);
 			break;
 		default:
 			break;

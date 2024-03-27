@@ -3,10 +3,11 @@
 #include "stateManager.h"
 
 #define PLAYER_SCALE 3.f
-#define GRAVITY 30.f
+#define GRAVITY 300.f
 #define LERP_VIEW_TIMER 1.f
 #define LAUNCHING_TIMER_DURATION 1.f
-
+#define SLINGSHOT_GRAVITY 1000.f
+#define SLINGSHOT_DRAG 1.1f
 
 typedef enum {
 	FROG,

@@ -78,7 +78,7 @@ void updateSlingshot(Window* _window)
 
 	slingshot.vertex[1].position = getPlayerPos(_type);
 
-	customAttract(getPlayerPos(_type), pGetPlayerVelocity(_type), slingshot.basePos, 1000.f, 1000.f, dt);
+	customAttract(getPlayerPos(_type), pGetPlayerVelocity(_type), slingshot.basePos, /*600.f*/ GetSqrMagnitude(CreateVector(slingshot.basePos, getPlayerPos(_type))) * 0.02f, 1000.f, dt);
 
 	if (isButtonPressed(0, B) || sfKeyboard_isKeyPressed(sfKeyBackspace))
 	{
@@ -95,7 +95,7 @@ void updateSlingshot(Window* _window)
 	{
 		customAddForce(pGetPlayerVelocity(_type), MultiplyVector(CreateVector(getPlayerPos(_type), slingshot.basePos), 10.f));
 		slingshot.isInSlingshot = sfFalse;
-		setPlayerLauchingTimer(_type, LAUNCHING_TIMER_DURATION);
+		setPlayerLauchingTimer(_type, 0.f);
 	}
 }
 
@@ -106,6 +106,7 @@ void updateMap(Window* _window)
 	playerType _viewFocus = getViewFocus();
 	sfFloatRect _bounds = getPlayerRect(_viewFocus);
 	xboxA.canShow = sfFalse;
+
 	for (int j = 0; j < NB_BLOCKS_Y; j++)
 	{
 		for (int i = 0; i < NB_BLOCKS_X; i++)
@@ -114,7 +115,7 @@ void updateMap(Window* _window)
 			switch (b[j][i].type)
 			{
 			case T_SLINGSHOT:
-				if (!slingshot.isInSlingshot && sfFloatRect_intersects(&_bounds, &blockRect, NULL))
+				if (!slingshot.isInSlingshot && getPlayerLauchingTimer(_viewFocus) >= LAUNCHING_TIMER_DURATION && sfFloatRect_intersects(&_bounds, &blockRect, NULL))
 				{
 					xboxA.canShow = sfTrue;
 					xboxA.pos = AddVectors(b[j][i].pos, vector2f(64.f, 64.f));
@@ -424,6 +425,11 @@ sfBool isGrounded(sfVector2f _pos)
 	}
 
 	return sfFalse;
+}
+
+sfBool isCollision3(sfFloatRect _rect, sfVector2f* _velocity)
+{
+
 }
 
 sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)

@@ -1,6 +1,7 @@
 #pragma once
 #include "tools.h"
 #include "stateManager.h"
+#include "player.h"
 
 #define BLOCK_SIZE 32
 
@@ -90,6 +91,8 @@ sfFloatRect tmpPlayerRect2;
 
 void initMap();
 
+void updateSlingshot(Window* _window);
+
 void updateMap(Window* _window);
 
 void displayMap(Window* _window);
@@ -110,4 +113,6 @@ sfBool isCollision(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft);
 
 sfBool isSomeoneInSlingshot();
 
-//playerType getWhoIsInSlingshot();
+playerType getWhoIsInSlingshot();
+
+sfVector2f getSlingshotBasePos();

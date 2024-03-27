@@ -244,6 +244,8 @@ sfBool IsInFOV(sfVector2f _lookingObject, sfVector2f _forwardVector, sfVector2f 
 /// <param name="usingMass">sfTrue to divide by the mass, sfFalse otherwise</param>
 void AddForce(bodies* rb, sfVector2f _force, sfBool usingMass);
 
+void customAddForce(sfVector2f* _velocity, sfVector2f _force);
+
 /// <summary>
 /// Adds force to the velocity of a body at a certain point (One time call)
 /// </summary>
@@ -270,7 +272,7 @@ sfVector2f Reflect(sfVector2f _i, sfVector2f _n, float _bounciness);
 /// <param name="_range">From what distance to attract</param>
 void Attract(bodies* rb, sfVector2f _center, float _power, float _range);
 
-void customAttract(sfVector2f* _pos, sfVector2f* _velocity, sfVector2f _center, float _power, float _range, float _dt);
+void customAttract(sfVector2f _pos, sfVector2f* _velocity, sfVector2f _center, float _power, float _range, float _dt);
 
 /// <summary>
 /// Predicts the force to apply

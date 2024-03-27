@@ -208,9 +208,9 @@ void Attract(bodies* rb, sfVector2f _center, float _power, float _range)
 	AddForce(rb, MultiplyVector(rbToCenter, force * getDeltaTime()), sfTrue);
 }
 
-void customAttract(sfVector2f* _pos, sfVector2f* _velocity, sfVector2f _center, float _power, float _range, float _dt)
+void customAttract(sfVector2f _pos, sfVector2f* _velocity, sfVector2f _center, float _power, float _range, float _dt)
 {
-	sfVector2f rbToCenter = CreateVector(*_pos, _center);
+	sfVector2f rbToCenter = CreateVector(_pos, _center);
 	float dist = GetMagnitude(rbToCenter);
 	float maxed = MAX(0.f, (_range - dist));
 	//float force = MAX(0.f, ((_range, -dist) * (_range - dist)) / (_range * _range));

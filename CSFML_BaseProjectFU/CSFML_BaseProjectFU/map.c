@@ -1,7 +1,6 @@
 #include "map.h"
 #include "editor.h"
 #include "CustomMath.h"
-#include "player.h"
 #include "gamepadx.h"
 
 typedef struct {
@@ -28,6 +27,7 @@ typedef struct {
 	sfVector2f basePos;
 	sfVector2f oldPlayerPos;
 	sfVertex vertex[3];
+	sfBool canLaunch;
 }Slingshot;
 Slingshot slingshot;
 
@@ -65,6 +65,7 @@ void initMap()
 		slingshot.vertex[i].color = color(48, 22, 8, 255);
 		slingshot.vertex[i].position = VECTOR2F_NULL;
 	}
+	slingshot.canLaunch = sfFalse;
 
 	sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
 }
@@ -73,24 +74,34 @@ void updateSlingshot(Window* _window)
 {
 	float dt = getDeltaTime();
 
-	slingshot.vertex[1].position = getPlayerPos(slingshot.type);
+	playerType _type = slingshot.type;
 
-	customAttract(pGetPlayerPos(slingshot.type), pGetPlayerVelocity(slingshot.type), slingshot.basePos, 100.f, 1000.f, dt);
+	slingshot.vertex[1].position = getPlayerPos(_type);
+
+	customAttract(getPlayerPos(_type), pGetPlayerVelocity(_type), slingshot.basePos, 1000.f, 1000.f, dt);
 
 	if (isButtonPressed(0, B) || sfKeyboard_isKeyPressed(sfKeyBackspace))
 	{
-		setPlayerPos(slingshot.type, slingshot.oldPlayerPos);
+		setPlayerPos(_type, slingshot.oldPlayerPos);
 		slingshot.isInSlingshot = sfFalse;
+	}
+
+	if (!slingshot.canLaunch && !isButtonPressed(0, A) && !sfKeyboard_isKeyPressed(sfKeyEnter))
+	{
+		slingshot.canLaunch = sfTrue;
+	}
+
+	if (slingshot.canLaunch && (isButtonPressed(0, A) || sfKeyboard_isKeyPressed(sfKeyEnter)))
+	{
+		customAddForce(pGetPlayerVelocity(_type), MultiplyVector(CreateVector(getPlayerPos(_type), slingshot.basePos), 10.f));
+		slingshot.isInSlingshot = sfFalse;
+		setPlayerLauchingTimer(_type, LAUNCHING_TIMER_DURATION);
 	}
 }
 
 void updateMap(Window* _window)
 {
 	float dt = getDeltaTime();
-
-	if (slingshot.isInSlingshot) {
-		updateSlingshot(_window);
-	}
 
 	playerType _viewFocus = getViewFocus();
 	sfFloatRect _bounds = getPlayerRect(_viewFocus);
@@ -119,7 +130,7 @@ void updateMap(Window* _window)
 						slingshot.oldPlayerPos = getPlayerPos(slingshot.type);
 						slingshot.vertex[0].position = AddVectors(b[j][i].pos, vector2f(56.f * 2.f, 38.f));
 						slingshot.vertex[2].position = AddVectors(b[j][i].pos, vector2f(14.f, 36.f));
-
+						slingshot.canLaunch = sfFalse;
 						setPlayerPos(slingshot.type, slingshot.basePos);
 					}
 				}
@@ -600,4 +611,9 @@ sfBool isSomeoneInSlingshot()
 playerType getWhoIsInSlingshot()
 {
 	return slingshot.type;
+}
+
+sfVector2f getSlingshotBasePos()
+{
+	return slingshot.basePos;
 }

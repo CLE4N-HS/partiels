@@ -28,6 +28,8 @@ typedef struct {
 	float speed;
 	float animTimer;
 	sfBool isFlipped;
+
+	float lauchingTimer;
 }Players;
 Players p[2];
 
@@ -73,6 +75,7 @@ void initPlayer()
 		p[i].animTimer = 0.f;
 		p[i].isFlipped = sfFalse;
 		p[i].forward = VECTOR2F_NULL;
+		p[i].lauchingTimer = LAUNCHING_TIMER_DURATION;
 
 		p[i].sprite = sfSprite_create();
 		sfSprite_setOrigin(p[i].sprite, vector2f(16.f, 16.f));
@@ -93,9 +96,15 @@ void updatePlayer(Window* _window)
 
 	if (isSomeoneInSlingshot())
 	{
-		//playerType _type = getWhoIsInSlingshot();
+		playerType _type = getWhoIsInSlingshot();
 
-		//p[_type].forward = Normalize(vector2f(xStickPos, yStickPos));
+		p[_type].forward = Normalize(vector2f(xStickPos, -yStickPos));
+		p[_type].velocity = MultiplyVector(p[_type].forward, 100.f);
+
+		updateSlingshot(_window);
+
+		if (p[_type].pos.x > getSlingshotBasePos().x) p[_type].isFlipped = sfTrue;
+		else p[_type].isFlipped = sfFalse;
 
 	}
 	else if (viewTimer >= LERP_VIEW_TIMER)
@@ -140,12 +149,20 @@ void updatePlayer(Window* _window)
 		p[ASTRONAUT].velocity = VECTOR2F_NULL;
 	}
 
-	if (!isGrounded(p[FROG].pos))
+	if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
 	{
-		p[FROG].anim = FALL;
-		p[FROG].velocity.y += GRAVITY * dt;
+		if (!isGrounded(p[FROG].pos))
+		{
+			p[FROG].anim = FALL;
+			p[FROG].velocity.y += GRAVITY * dt;
+		}
+		else p[FROG].velocity.y = 0.f;
 	}
-	else p[FROG].velocity.y = 0.f;
+	else
+	{
+		p[viewFocus].lauchingTimer += dt;
+		printf("%f, %f\n", p[viewFocus].velocity.x, p[viewFocus].velocity.y);
+	}
 
 	for (int i = 0; i < 2; i++)
 	{
@@ -308,4 +325,14 @@ sfVector2f* pGetPlayerPos(playerType _type)
 sfVector2f* pGetPlayerVelocity(playerType _type)
 {
 	return &p[_type].velocity;
+}
+
+void setPlayerLauchingTimer(playerType _type, float _launchingTimer)
+{
+	p[_type].lauchingTimer = _launchingTimer;
+}
+
+float getPlayerLauchingTimer(playerType _type)
+{
+	return p[_type].lauchingTimer;
 }

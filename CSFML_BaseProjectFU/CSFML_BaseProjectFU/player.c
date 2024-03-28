@@ -25,12 +25,14 @@ typedef struct {
 	sfVector2f pos;
 	sfVector2f velocity;
 	sfVector2f forward;
+	sfVector2f drag;
 
 	float speed;
 	float animTimer;
 	sfBool isFlipped;
 
 	float lauchingTimer;
+	float musicBlocTimer;
 }Players;
 Players p[2];
 
@@ -77,6 +79,8 @@ void initPlayer()
 		p[i].isFlipped = sfFalse;
 		p[i].forward = VECTOR2F_NULL;
 		p[i].lauchingTimer = LAUNCHING_TIMER_DURATION;
+		p[i].musicBlocTimer = MUSIC_BLOC_TIMER_DURATION;
+		p[i].drag = vector2f(1.f, 1.f);
 
 		p[i].sprite = sfSprite_create();
 		sfSprite_setOrigin(p[i].sprite, vector2f(16.f, 16.f));
@@ -88,7 +92,10 @@ void updatePlayer(Window* _window)
 	float dt = getDeltaTime();
 
 	// to remove
-	if (sfKeyboard_isKeyPressed(sfKeyA)) p[FROG].pos = vector2f(300.f, 520.f);
+	if (sfKeyboard_isKeyPressed(sfKeyA)) {
+		p[FROG].pos = vector2f(300.f, 520.f);
+		p[FROG].velocity = VECTOR2F_NULL;
+	}
 	if (sfKeyboard_isKeyPressed(sfKeyE)) p[ASTRONAUT].pos = p[FROG].pos;
 
 	// movement
@@ -101,6 +108,9 @@ void updatePlayer(Window* _window)
 
 		p[_type].forward = Normalize(vector2f(xStickPos, -yStickPos));
 		p[_type].velocity = MultiplyVector(p[_type].forward, 100.f);
+		p[_type].anim = IDLE;
+
+		isCollision3(p[_type].bounds, &p[_type].velocity);
 
 		updateSlingshot(_window);
 
@@ -108,7 +118,13 @@ void updatePlayer(Window* _window)
 		else p[_type].isFlipped = sfFalse;
 
 	}
-	else if (viewTimer >= LERP_VIEW_TIMER && p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+	else if (p[viewFocus].musicBlocTimer < MUSIC_BLOC_TIMER_DURATION)
+	{
+		p[viewFocus].velocity.y = -1000.f + p[viewFocus].musicBlocTimer * 1000.f;
+		p[viewFocus].musicBlocTimer += dt;
+		isCollision3(p[viewFocus].bounds, &p[viewFocus].velocity);
+	}
+	else if (viewTimer >= LERP_VIEW_TIMER && p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION && p[viewFocus].musicBlocTimer >= MUSIC_BLOC_TIMER_DURATION)
 	{
 		if (((xStickPos < -50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyQ)) && !isCollision2(p[FROG].bounds, sfTrue, sfTrue)) {
 			p[FROG].velocity.x = -p[FROG].speed;
@@ -152,14 +168,48 @@ void updatePlayer(Window* _window)
 			p[ASTRONAUT].velocity = VECTOR2F_NULL;
 	}
 
-	if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+	if (!isGrounded(p[FROG].pos, &p[FROG].velocity, &p[FROG].drag))
 	{
-		if (!isGrounded(p[FROG].pos))
+		if (!isSomeoneInSlingshot())
 		{
 			p[FROG].anim = FALL;
 			p[FROG].velocity.y += GRAVITY * dt;
+
 		}
-		else p[FROG].velocity.y = 0.f;
+	}
+	else if ((!isSomeoneInSlingshot()))
+	{
+		//p[FROG].velocity.y = 0.f;
+	}
+
+	isCollision3(p[FROG].bounds, &p[FROG].velocity); // not sure if always this
+
+
+	if (!isGrounded(p[ASTRONAUT].pos, &p[ASTRONAUT].velocity, &p[ASTRONAUT].drag))
+	{
+		//p[ASTRONAUT].anim = FALL;
+		//p[ASTRONAUT].velocity.y += GRAVITY * dt;
+	}
+	//else p[ASTRONAUT].velocity.y = 0.f;
+
+	if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+	{
+		//if (!isSomeoneInSlingshot())
+		//{
+		//	if (!isGrounded(p[FROG].pos, &p[FROG].velocity))
+		//	{
+		//		p[FROG].anim = FALL;
+		//		p[FROG].velocity.y += GRAVITY * dt;
+		//	}
+		//	else p[FROG].velocity.y = 0.f;
+
+		//	if (!isGrounded(p[ASTRONAUT].pos, &p[ASTRONAUT].velocity))
+		//	{
+		//		//p[ASTRONAUT].anim = FALL;
+		//		//p[ASTRONAUT].velocity.y += GRAVITY * dt;
+		//	}
+		//	//else p[ASTRONAUT].velocity.y = 0.f;
+		//}
 	}
 	else
 	{
@@ -167,6 +217,8 @@ void updatePlayer(Window* _window)
 		p[viewFocus].velocity = MultiplyVector(p[viewFocus].velocity, 1.f - SLINGSHOT_DRAG * dt);
 		p[viewFocus].velocity = AddVectors(p[viewFocus].velocity, MultiplyVector(vector2f(0.f, SLINGSHOT_GRAVITY), dt));
 		p[viewFocus].anim = THROW;
+
+		isCollision3(p[viewFocus].bounds, &p[viewFocus].velocity);
 	}
 
 	for (int i = 0; i < 2; i++)
@@ -223,8 +275,19 @@ void updatePlayer(Window* _window)
 			break;
 		}
 
+		if (p[i].drag.x > 1.f) {
+			p[i].drag.x += dt;
+			if (p[i].drag.x >= 2.f)
+				p[i].drag.x = 1.f;
+		}
+		if (p[i].drag.y > 1.f) {
+			p[i].drag.y += dt;
+			if (p[i].drag.y >= 2.f)
+				p[i].drag.y = 1.f;
+		}
 
 
+		p[i].velocity = vector2f(p[i].velocity.x / p[i].drag.x, p[i].velocity.y / p[i].drag.y);
 		p[i].pos = AddVectors(p[i].pos, MultiplyVector(p[i].velocity, dt));
 
 	}
@@ -339,6 +402,11 @@ sfVector2f* pGetPlayerVelocity(playerType _type)
 	return &p[_type].velocity;
 }
 
+sfVector2f getPlayerVelocity(playerType _type)
+{
+	return p[_type].velocity;
+}
+
 void setPlayerLauchingTimer(playerType _type, float _launchingTimer)
 {
 	p[_type].lauchingTimer = _launchingTimer;
@@ -347,4 +415,19 @@ void setPlayerLauchingTimer(playerType _type, float _launchingTimer)
 float getPlayerLauchingTimer(playerType _type)
 {
 	return p[_type].lauchingTimer;
+}
+
+sfFloatRect getPlayerBounds(playerType _type)
+{
+	return p[_type].bounds;
+}
+
+void setPlayerMusicBlocTimer(playerType _type, float _timer)
+{
+	p[_type].musicBlocTimer = _timer;
+}
+
+float getPlayerMusicBlocTimer(playerType _type)
+{
+	return p[_type].musicBlocTimer;
 }

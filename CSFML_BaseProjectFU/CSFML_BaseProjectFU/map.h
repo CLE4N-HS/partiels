@@ -73,7 +73,15 @@ typedef enum {
 	T_BIGBOX,
 	T_TORCH,
 	T_BOTTOMWALL,
-	T_SLINGSHOT
+	T_SLINGSHOT,
+	T_LLEFTMOVING,
+	T_LMOVING,
+	T_LRIGHTMOVING,
+
+	T_RLEFTMOVING,
+	T_RMOVING,
+	T_RRIGHTMOVING,
+	T_MUSICBLOC
 }blockType;
 
 typedef struct {
@@ -81,6 +89,7 @@ typedef struct {
 	sfVector2f pos;
 	sfIntRect rect;
 	sfBool isSolid;
+	float timer;
 }Blocks;
 Blocks b[NB_BLOCKS_Y][NB_BLOCKS_X];
 
@@ -105,7 +114,9 @@ void loadMap(int _nbMap);
 
 sfVector2i getPlayerBlockPos(sfVector2f _pos);
 
-sfBool isGrounded(sfVector2f _pos);
+sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity, sfVector2f* _drag);
+
+sfBool isCollision3(sfFloatRect _rect, sfVector2f* _velocity);
 
 sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft);
 

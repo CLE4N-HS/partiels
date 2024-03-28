@@ -183,6 +183,14 @@ void updateEditor(Window* _window)
 			case T_TORCH:  tileCursorRect = IntRect(2 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 			case T_BOTTOMWALL: tileCursorRect = IntRect(3 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 			case T_SLINGSHOT: tileCursorRect = IntRect(0, 0, 66, 209); break;
+			case T_LLEFTMOVING: tileCursorRect = IntRect(0, 0, 32, 32); break;
+			case T_LMOVING: tileCursorRect = IntRect(0, 32, 32, 32); break;
+			case T_LRIGHTMOVING: tileCursorRect = IntRect(0, 64, 32, 32); break;
+
+			case T_RLEFTMOVING: tileCursorRect = IntRect(0, 0, 32, 32); break;
+			case T_RMOVING: tileCursorRect = IntRect(0, 32, 32, 32); break;
+			case T_RRIGHTMOVING: tileCursorRect = IntRect(0, 64, 32, 32); break;
+			case T_MUSICBLOC: tileCursorRect = IntRect(0, 0, 32, 32); break;
 			default: break;
 		}
 
@@ -202,11 +210,14 @@ void updateEditor(Window* _window)
 			}
 			b[y][x].type = currentTile;
 			b[y][x].isSolid = sfFalse;
+			b[y][x].timer = 0.f;
+			int j = y;
+			int i = x;
 
-			for (int j = 0; j < NB_BLOCKS_Y; j++)
-			{
-				for (int i = 0; i < NB_BLOCKS_X; i++)
-				{
+			//for (int j = 0; j < NB_BLOCKS_Y; j++)
+			//{
+			//	for (int i = 0; i < NB_BLOCKS_X; i++)
+			//	{
 					switch (b[j][i].type)
 					{
 					case T_NOTILE: break;
@@ -269,9 +280,17 @@ void updateEditor(Window* _window)
 					case T_TORCH:  b[j][i].rect = IntRect(2 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); break;
 					case T_BOTTOMWALL: b[j][i].rect = IntRect(3 * BLOCK_SIZE, 6 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); b[j][i].isSolid = sfTrue; break;
 					case T_SLINGSHOT: b[j][i].rect = IntRect(0, 0, 66, 209); break;
+					case T_LLEFTMOVING: b[j][i].rect = IntRect(0, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
+					case T_LMOVING: b[j][i].rect = IntRect(0, 32, 32, 32); b[j][i].isSolid = sfTrue; break;
+					case T_LRIGHTMOVING: b[j][i].rect = IntRect(0, 64, 32, 32); b[j][i].isSolid = sfTrue; break;
+
+					case T_RLEFTMOVING: b[j][i].rect = IntRect(0, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
+					case T_RMOVING: b[j][i].rect = IntRect(0, 32, 32, 32); b[j][i].isSolid = sfTrue; break;
+					case T_RRIGHTMOVING: b[j][i].rect = IntRect(0, 64, 32, 32); b[j][i].isSolid = sfTrue; break;
+					case T_MUSICBLOC: b[j][i].rect = IntRect(0, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
 					default: break;
-					}
-				}
+					//}
+				//}
 			}
 		}
 
@@ -427,6 +446,21 @@ void updateEditor(Window* _window)
 				currentTile = T_BOTTOMWALL;
 			else if ((mousePosX > 128.f * 2.f && mousePosX < 160.f * 2.f) && (mousePosY > 192.f * 2.f && mousePosY < 224.f * 2.f))
 				currentTile = T_SLINGSHOT;
+			else if ((mousePosX > 160.f * 2.f && mousePosX < 192.f * 2.f) && (mousePosY > 192.f * 2.f && mousePosY < 224.f * 2.f))
+				currentTile = T_LLEFTMOVING;
+			else if ((mousePosX > 192.f * 2.f && mousePosX < 224.f * 2.f) && (mousePosY > 192.f * 2.f && mousePosY < 224.f * 2.f))
+				currentTile = T_LMOVING;
+			else if ((mousePosX > 224.f * 2.f && mousePosX < 256.f * 2.f) && (mousePosY > 192.f * 2.f && mousePosY < 224.f * 2.f))
+				currentTile = T_LRIGHTMOVING;
+
+			else if ((mousePosX > 0.f * 2.f && mousePosX < 32.f * 2.f) && (mousePosY > 224.f * 2.f && mousePosY < 256.f * 2.f))
+				currentTile = T_RLEFTMOVING;
+			else if ((mousePosX > 32.f * 2.f && mousePosX < 64.f * 2.f) && (mousePosY > 192.f * 2.f && mousePosY < 256.f * 2.f))
+				currentTile = T_RMOVING;
+			else if ((mousePosX > 64.f * 2.f && mousePosX < 96.f * 2.f) && (mousePosY > 224.f * 2.f && mousePosY < 256.f * 2.f))
+				currentTile = T_RRIGHTMOVING;
+			else if ((mousePosX > 96.f * 2.f && mousePosX < 128.f * 2.f) && (mousePosY > 224.f * 2.f && mousePosY < 256.f * 2.f))
+				currentTile = T_MUSICBLOC;
 
 
 			else
@@ -519,6 +553,9 @@ void displayEditor(Window* _window)
 	displayMap(_window);
 	/// TILE CURSOR
 	if (currentTile == T_SLINGSHOT)	sfSprite_setTexture(tileCursor, GetTexture("slingshot"), sfFalse);
+	else if (currentTile == T_LLEFTMOVING || currentTile == T_LMOVING || currentTile == T_LRIGHTMOVING) sfSprite_setTexture(tileCursor, GetTexture("leftMoving"), sfFalse);
+	else if (currentTile == T_RLEFTMOVING || currentTile == T_RMOVING || currentTile == T_RRIGHTMOVING) sfSprite_setTexture(tileCursor, GetTexture("rightMoving"), sfFalse);
+	else if (currentTile == T_MUSICBLOC) sfSprite_setTexture(tileCursor, GetTexture("musicBloc"), sfFalse);
 	else sfSprite_setTexture(tileCursor, GetTexture("castleTiles"), sfFalse);
 
 	sfSprite_setTextureRect(tileCursor, tileCursorRect);

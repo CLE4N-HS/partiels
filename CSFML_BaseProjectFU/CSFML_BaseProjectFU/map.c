@@ -18,6 +18,8 @@ sfSprite* mapSprite;
 
 sfTexture* castleTexture;
 sfTexture* slingshotTexture;
+sfTexture* leftMovingTexture;
+sfTexture* rightMovingTexture;
 sfTexture* xboxATexture;
 
 sfVertexArray* vArray;
@@ -46,6 +48,8 @@ void initMap()
 
 	castleTexture = GetTexture("castleTiles");
 	slingshotTexture = GetTexture("slingshot");
+	leftMovingTexture = GetTexture("leftMoving");
+	rightMovingTexture = GetTexture("rightMoving");
 	xboxATexture = GetTexture("xboxA");
 
 	vArray = sfVertexArray_create();
@@ -89,13 +93,13 @@ void updateSlingshot(Window* _window)
 	for (int i = 0; i < NB_VERTEX; i++)
 	{
 
-		sfVector2f nextPos = MultiplyVector(tmpVelocity, 100.f);
-		tmpVelocity = MultiplyVector(newVelocity, 1.f - SLINGSHOT_DRAG * dt * 2.f);
-		float a = GRAVITY * t * 200.f;
+		sfVector2f nextPos = MultiplyVector(tmpVelocity, 123.f);
+		tmpVelocity = MultiplyVector(newVelocity, 1.f - SLINGSHOT_DRAG * dt * 1.f);
+		float a = GRAVITY * t * 250.f;
 		nextPos.y += a;
 		sfVertex vertex;
 		vertex.color = sfWhite;
-		vertex.position = AddVectors(slingshot.basePos, MultiplyVector(nextPos, t / 2.f));
+		vertex.position = AddVectors(getPlayerPos(_type), MultiplyVector(nextPos, t / 2.f));
 		sfVertexArray_append(vArray, vertex);
 		t = i * 0.1f / NB_VERTEX;
 	}
@@ -114,7 +118,7 @@ void updateSlingshot(Window* _window)
 
 	if (slingshot.canLaunch && (isButtonPressed(0, A) || sfKeyboard_isKeyPressed(sfKeyEnter)))
 	{
-		customAddForce(pGetPlayerVelocity(_type), MultiplyVector(CreateVector(getPlayerPos(_type), slingshot.basePos), 10.f));
+		customAddForce(pGetPlayerVelocity(_type), MultiplyVector(CreateVector(getPlayerPos(_type), slingshot.basePos), 20.f));
 		slingshot.isInSlingshot = sfFalse;
 		setPlayerLauchingTimer(_type, 0.f);
 	}
@@ -132,11 +136,11 @@ void updateMap(Window* _window)
 	{
 		for (int i = 0; i < NB_BLOCKS_X; i++)
 		{
-			sfFloatRect blockRect = FlRect(b[j][i].pos.x, b[j][i].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+			sfFloatRect blockBounds = FlRect(b[j][i].pos.x, b[j][i].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 			switch (b[j][i].type)
 			{
 			case T_SLINGSHOT:
-				if (!slingshot.isInSlingshot && getPlayerLauchingTimer(_viewFocus) >= LAUNCHING_TIMER_DURATION && sfFloatRect_intersects(&_bounds, &blockRect, NULL))
+				if (!slingshot.isInSlingshot && getPlayerLauchingTimer(_viewFocus) >= LAUNCHING_TIMER_DURATION && sfFloatRect_intersects(&_bounds, &blockBounds, NULL))
 				{
 					xboxA.canShow = sfTrue;
 					xboxA.pos = AddVectors(b[j][i].pos, vector2f(64.f, 64.f));
@@ -156,6 +160,30 @@ void updateMap(Window* _window)
 						setPlayerPos(slingshot.type, slingshot.basePos);
 					}
 				}
+				break;
+			case T_LLEFTMOVING:
+				b[j][i].timer += dt;
+				Animator(&b[j][i].rect, &b[j][i].timer, 3, 0, 0.1f, 0.f);
+				break;
+			case T_LMOVING:
+				b[j][i].timer += dt;
+				Animator(&b[j][i].rect, &b[j][i].timer, 3, 0, 0.1f, 0.f);
+				break;
+			case T_LRIGHTMOVING:
+				b[j][i].timer += dt;
+				Animator(&b[j][i].rect, &b[j][i].timer, 3, 0, 0.1f, 0.f);
+				break;
+			case T_RLEFTMOVING:
+				b[j][i].timer += dt;
+				Animator(&b[j][i].rect, &b[j][i].timer, 3, 0, 0.1f, 0.f);
+				break;
+			case T_RMOVING:
+				b[j][i].timer += dt;
+				Animator(&b[j][i].rect, &b[j][i].timer, 3, 0, 0.1f, 0.f);
+				break;
+			case T_RRIGHTMOVING:
+				b[j][i].timer += dt;
+				Animator(&b[j][i].rect, &b[j][i].timer, 3, 0, 0.1f, 0.f);
 				break;
 			default:
 				break;
@@ -206,6 +234,48 @@ void displayMap(Window* _window)
 				}
 				sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
 				sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
+				break;
+			case T_LLEFTMOVING:
+				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
+				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
+				sfSprite_setPosition(mapSprite, b[j][i].pos);
+				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+				break;
+			case T_LMOVING:
+				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
+				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
+				sfSprite_setPosition(mapSprite, b[j][i].pos);
+				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+				break;
+			case T_LRIGHTMOVING:
+				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
+				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
+				sfSprite_setPosition(mapSprite, b[j][i].pos);
+				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+				break;
+			case T_RLEFTMOVING:
+				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
+				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
+				sfSprite_setPosition(mapSprite, b[j][i].pos);
+				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+				break;
+			case T_RMOVING:
+				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
+				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
+				sfSprite_setPosition(mapSprite, b[j][i].pos);
+				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+				break;
+			case T_RRIGHTMOVING:
+				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
+				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
+				sfSprite_setPosition(mapSprite, b[j][i].pos);
+				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
 				break;
 			default:
 				sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
@@ -295,6 +365,7 @@ void defaultMap()
 			b[j][i].type = T_LITTLEWALL;
 			b[j][i].rect = IntRect(0, 0, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 			b[j][i].pos = vector2f(i * BLOCK_SIZE * BLOCK_SCALE, j * BLOCK_SIZE * BLOCK_SCALE);
+			b[j][i].timer = 0.f;
 		}
 	}
 }
@@ -436,7 +507,7 @@ sfVector2i getPlayerBlockPos(sfVector2f _pos)
 	return iPos;
 }
 
-sfBool isGrounded(sfVector2f _pos)
+sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity)
 {
 	sfVector2i blockPos = getPlayerBlockPos(vector2f(_pos.x - 32.f, _pos.y + 48.f)); // offset to not count the alpha 0
 	sfVector2i blockPos2 = getPlayerBlockPos(vector2f(_pos.x + 32.f, _pos.y + 48.f));
@@ -445,6 +516,29 @@ sfBool isGrounded(sfVector2f _pos)
 	//tmpRect2 = FlRect(b[blockPos2.y][blockPos2.x].pos.x, b[blockPos2.y][blockPos2.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 
 	if (b[blockPos.y][blockPos.x].isSolid || b[blockPos2.y][blockPos2.x].isSolid) {
+		switch (b[blockPos.y][blockPos.x].type)
+		{
+		case T_LLEFTMOVING:
+			_velocity->x = -200.f;
+			break;
+		case T_LMOVING:
+			_velocity->x = -200.f;
+			break;
+		case T_LRIGHTMOVING:
+			_velocity->x = -200.f;
+			break;
+		case T_RLEFTMOVING:
+			_velocity->x = 200.f;
+			break;
+		case T_RMOVING:
+			_velocity->x = 200.f;
+			break;
+		case T_RRIGHTMOVING:
+			_velocity->x = 200.f;
+			break;
+		default:
+			break;
+		}
 		return sfTrue;
 	}
 
@@ -453,7 +547,39 @@ sfBool isGrounded(sfVector2f _pos)
 
 sfBool isCollision3(sfFloatRect _rect, sfVector2f* _velocity)
 {
-
+	if (_velocity->x > EPSILON)
+	{
+		if (isCollision2(_rect, sfTrue, sfFalse))
+		{
+			_velocity->x = 0.f;
+			return sfTrue;
+		}
+	}
+	if (_velocity->x < -EPSILON)
+	{
+		if (isCollision2(_rect, sfTrue, sfTrue))
+		{
+			_velocity->x = 0.f;
+			return sfTrue;
+		}
+	}
+	if (_velocity->y > EPSILON)
+	{
+		if (isCollision2(_rect, sfFalse, sfFalse))
+		{
+			_velocity->y = 0.f;
+			return sfTrue;
+		}
+	}
+	if (_velocity->y < -EPSILON)
+	{
+		if (isCollision2(_rect, sfFalse, sfTrue))
+		{
+			_velocity->y = 0.f;
+			return sfTrue;
+		}
+	}
+	return sfFalse;
 }
 
 sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
@@ -537,14 +663,32 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 				sfFloatRect blockRect = FlRect(b[blockPos.y - 1][blockPos.x].pos.x, b[blockPos.y - 1][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 				tmpRect = blockRect;
 				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
-					return sfTrue;
+				{
+					switch (b[blockPos.y - 1][blockPos.x].type)
+					{
+					case T_LEFTPLATFORM: break;
+					case T_PLATFORM: break;
+					case T_RIGHTPLATFORM: break;
+					default:
+						return sfTrue;
+					}
+				}
 			}
 			if (b[blockPos2.y - 1][blockPos2.x].isSolid)
 			{
 				sfFloatRect blockRect2 = FlRect(b[blockPos2.y - 1][blockPos2.x].pos.x, b[blockPos2.y - 1][blockPos2.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 				tmpRect = blockRect2;
 				if (sfFloatRect_intersects(&_rect, &blockRect2, NULL))
-					return sfTrue;
+				{
+					switch (b[blockPos2.y - 1][blockPos2.x].type)
+					{
+					case T_LEFTPLATFORM: break;
+					case T_PLATFORM: break;
+					case T_RIGHTPLATFORM: break;
+					default:
+						return sfTrue;
+					}
+				}
 			}
 		}
 		else if (!_UpOrLeft && blockPos.y < NB_BLOCKS_Y - 1 && blockPos2.y < NB_BLOCKS_Y - 1)

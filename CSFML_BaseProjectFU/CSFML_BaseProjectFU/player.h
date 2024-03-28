@@ -42,3 +42,5 @@ sfVector2f getPlayerVelocity(playerType _type);
 void setPlayerLauchingTimer(playerType _type, float _launchingTimer);
 
 float getPlayerLauchingTimer(playerType _type);
+
+sfFloatRect getPlayerBounds(playerType _type);

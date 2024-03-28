@@ -1,4 +1,6 @@
 #include "CustomMath.h"
+#include "player.h"
+#include "map.h"
 
 sfVector2i vector2i(int _x, int _y)
 {
@@ -169,7 +171,13 @@ void AddForce(bodies* rb, sfVector2f _force, sfBool usingMass)
 
 void customAddForce(sfVector2f* _velocity, sfVector2f _force)
 {
-	*_velocity = AddVectors(*_velocity, _force);
+	//playerType _type = getWhoIsInSlingshot();
+	//if (isCollision3(getPlayerBounds(_type), pGetPlayerVelocity(_type)))
+	//{
+	//	printf("collision");
+	//}
+	//else
+		*_velocity = AddVectors(*_velocity, _force);
 }
 
 void AddForceAtPosition(bodies* rb, sfVector2f _force, sfVector2f _pos)

@@ -103,6 +103,11 @@ void updatePlayer(Window* _window)
 		p[_type].velocity = MultiplyVector(p[_type].forward, 100.f);
 		p[_type].anim = IDLE;
 
+		if (isCollision3(p[_type].bounds, &p[_type].velocity))
+		{
+			printf("collision");
+		}
+
 		updateSlingshot(_window);
 
 		if (p[_type].pos.x > getSlingshotBasePos().x) p[_type].isFlipped = sfTrue;
@@ -155,12 +160,15 @@ void updatePlayer(Window* _window)
 
 	if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
 	{
-		if (!isGrounded(p[FROG].pos))
+		if (!isSomeoneInSlingshot())
 		{
-			p[FROG].anim = FALL;
-			p[FROG].velocity.y += GRAVITY * dt;
+			if (!isGrounded(p[FROG].pos, &p[FROG].velocity))
+			{
+				p[FROG].anim = FALL;
+				p[FROG].velocity.y += GRAVITY * dt;
+			}
+			else p[FROG].velocity.y = 0.f;
 		}
-		else p[FROG].velocity.y = 0.f;
 	}
 	else
 	{
@@ -168,6 +176,11 @@ void updatePlayer(Window* _window)
 		p[viewFocus].velocity = MultiplyVector(p[viewFocus].velocity, 1.f - SLINGSHOT_DRAG * dt);
 		p[viewFocus].velocity = AddVectors(p[viewFocus].velocity, MultiplyVector(vector2f(0.f, SLINGSHOT_GRAVITY), dt));
 		p[viewFocus].anim = THROW;
+
+		if (isCollision3(p[viewFocus].bounds, &p[viewFocus].velocity))
+		{
+			printf("collision");
+		}
 	}
 
 	for (int i = 0; i < 2; i++)
@@ -353,4 +366,9 @@ void setPlayerLauchingTimer(playerType _type, float _launchingTimer)
 float getPlayerLauchingTimer(playerType _type)
 {
 	return p[_type].lauchingTimer;
+}
+
+sfFloatRect getPlayerBounds(playerType _type)
+{
+	return p[_type].bounds;
 }

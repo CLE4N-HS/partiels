@@ -17,5 +17,6 @@ single castleTiles ../Ressources/Textures/GAME/tiles/castleTiles.png
 single slingshot ../Ressources/Textures/GAME/objects/slingshot.png
 single leftMoving ../Ressources/Textures/GAME/objects/leftMoving.png
 single rightMoving ../Ressources/Textures/GAME/objects/rightMoving.png
+single musicBloc ../Ressources/Textures/GAME/objects/musicBloc.png
 single xboxA ../Ressources/Textures/GAME/objects/xboxA.png
 [end]

@@ -80,7 +80,8 @@ typedef enum {
 
 	T_RLEFTMOVING,
 	T_RMOVING,
-	T_RRIGHTMOVING
+	T_RRIGHTMOVING,
+	T_MUSICBLOC
 }blockType;
 
 typedef struct {
@@ -113,7 +114,7 @@ void loadMap(int _nbMap);
 
 sfVector2i getPlayerBlockPos(sfVector2f _pos);
 
-sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity);
+sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity, sfVector2f* _drag);
 
 sfBool isCollision3(sfFloatRect _rect, sfVector2f* _velocity);
 

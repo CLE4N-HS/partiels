@@ -6,6 +6,7 @@
 #define GRAVITY 300.f
 #define LERP_VIEW_TIMER 1.f
 #define LAUNCHING_TIMER_DURATION 1.f
+#define MUSIC_BLOC_TIMER_DURATION 1.f
 #define SLINGSHOT_GRAVITY 1000.f
 #define SLINGSHOT_DRAG 1.1f
 
@@ -44,3 +45,7 @@ void setPlayerLauchingTimer(playerType _type, float _launchingTimer);
 float getPlayerLauchingTimer(playerType _type);
 
 sfFloatRect getPlayerBounds(playerType _type);
+
+void setPlayerMusicBlocTimer(playerType _type, float _timer);
+
+float getPlayerMusicBlocTimer(playerType _type);

@@ -4,6 +4,7 @@
 #include "gamepadx.h"
 
 #define NB_VERTEX 100
+#define MOVING_PLATFORMS_SPEED 320.f
 
 typedef struct {
 	sfBool canShow;
@@ -20,6 +21,7 @@ sfTexture* castleTexture;
 sfTexture* slingshotTexture;
 sfTexture* leftMovingTexture;
 sfTexture* rightMovingTexture;
+sfTexture* musicBlocTexture;
 sfTexture* xboxATexture;
 
 sfVertexArray* vArray;
@@ -50,6 +52,7 @@ void initMap()
 	slingshotTexture = GetTexture("slingshot");
 	leftMovingTexture = GetTexture("leftMoving");
 	rightMovingTexture = GetTexture("rightMoving");
+	musicBlocTexture = GetTexture("musicBloc");
 	xboxATexture = GetTexture("xboxA");
 
 	vArray = sfVertexArray_create();
@@ -118,7 +121,7 @@ void updateSlingshot(Window* _window)
 
 	if (slingshot.canLaunch && (isButtonPressed(0, A) || sfKeyboard_isKeyPressed(sfKeyEnter)))
 	{
-		customAddForce(pGetPlayerVelocity(_type), MultiplyVector(CreateVector(getPlayerPos(_type), slingshot.basePos), 20.f));
+		customAddForce(pGetPlayerVelocity(_type), MultiplyVector(CreateVector(getPlayerPos(_type), slingshot.basePos), 10.f));
 		slingshot.isInSlingshot = sfFalse;
 		setPlayerLauchingTimer(_type, 0.f);
 	}
@@ -238,44 +241,30 @@ void displayMap(Window* _window)
 			case T_LLEFTMOVING:
 				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
 				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
-				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
-				sfSprite_setPosition(mapSprite, b[j][i].pos);
-				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
 				break;
 			case T_LMOVING:
 				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
 				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
-				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
-				sfSprite_setPosition(mapSprite, b[j][i].pos);
-				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
 				break;
 			case T_LRIGHTMOVING:
 				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
 				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
-				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
-				sfSprite_setPosition(mapSprite, b[j][i].pos);
-				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
 				break;
 			case T_RLEFTMOVING:
 				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
 				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
-				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
-				sfSprite_setPosition(mapSprite, b[j][i].pos);
-				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
 				break;
 			case T_RMOVING:
 				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
 				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
-				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
-				sfSprite_setPosition(mapSprite, b[j][i].pos);
-				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
 				break;
 			case T_RRIGHTMOVING:
 				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
 				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
-				sfSprite_setTextureRect(mapSprite, b[j][i].rect);
-				sfSprite_setPosition(mapSprite, b[j][i].pos);
-				sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+				break;
+			case T_MUSICBLOC:
+				sfSprite_setTexture(mapSprite, musicBlocTexture, sfFalse);
+				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
 				break;
 			default:
 				sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
@@ -507,7 +496,7 @@ sfVector2i getPlayerBlockPos(sfVector2f _pos)
 	return iPos;
 }
 
-sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity)
+sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity, sfVector2f* _drag)
 {
 	sfVector2i blockPos = getPlayerBlockPos(vector2f(_pos.x - 32.f, _pos.y + 48.f)); // offset to not count the alpha 0
 	sfVector2i blockPos2 = getPlayerBlockPos(vector2f(_pos.x + 32.f, _pos.y + 48.f));
@@ -519,22 +508,34 @@ sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity)
 		switch (b[blockPos.y][blockPos.x].type)
 		{
 		case T_LLEFTMOVING:
-			_velocity->x = -200.f;
+			_velocity->x = -MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
 			break;
 		case T_LMOVING:
-			_velocity->x = -200.f;
+			_velocity->x = -MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
 			break;
 		case T_LRIGHTMOVING:
-			_velocity->x = -200.f;
+			_velocity->x = -MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
 			break;
 		case T_RLEFTMOVING:
-			_velocity->x = 200.f;
+			_velocity->x = MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
 			break;
 		case T_RMOVING:
-			_velocity->x = 200.f;
+			_velocity->x = MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
 			break;
 		case T_RRIGHTMOVING:
-			_velocity->x = 200.f;
+			_velocity->x = MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
+			break;
+		case T_MUSICBLOC:
+			if (getPlayerMusicBlocTimer(FROG) >= 0.9f)
+				setPlayerMusicBlocTimer(FROG, 0.f); // TODO : DYNAMIC
+			//_drag->y = 1.1f;
+			_velocity->x = 0.f;
 			break;
 		default:
 			break;
@@ -664,6 +665,9 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 				tmpRect = blockRect;
 				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
 				{
+					if (getViewFocus() == FROG)
+						setPlayerMusicBlocTimer(FROG, MUSIC_BLOC_TIMER_DURATION);
+
 					switch (b[blockPos.y - 1][blockPos.x].type)
 					{
 					case T_LEFTPLATFORM: break;
@@ -680,6 +684,9 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 				tmpRect = blockRect2;
 				if (sfFloatRect_intersects(&_rect, &blockRect2, NULL))
 				{
+					if (getViewFocus() == FROG)
+						setPlayerMusicBlocTimer(FROG, MUSIC_BLOC_TIMER_DURATION);
+
 					switch (b[blockPos2.y - 1][blockPos2.x].type)
 					{
 					case T_LEFTPLATFORM: break;

@@ -81,7 +81,8 @@ typedef enum {
 	T_RLEFTMOVING,
 	T_RMOVING,
 	T_RRIGHTMOVING,
-	T_MUSICBLOC
+	T_MUSICBLOC,
+	T_DOOR
 }blockType;
 
 typedef struct {

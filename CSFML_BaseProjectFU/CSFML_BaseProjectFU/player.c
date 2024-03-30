@@ -36,7 +36,9 @@ typedef struct {
 }Players;
 Players p[2];
 
+// to remove
 sfRectangleShape* pRectangle;
+sfCircleShape* pCircle;
 
 playerType viewFocus;
 playerType lastViewFocus;
@@ -46,6 +48,7 @@ sfVector2f lastViewPos;
 void initPlayer()
 {
 	pRectangle = sfRectangleShape_create();
+	pCircle = sfCircleShape_create();
 
 	viewFocus = FROG;
 	lastViewFocus = FROG;
@@ -173,7 +176,8 @@ void updatePlayer(Window* _window)
 		if (!isSomeoneInSlingshot())
 		{
 			p[FROG].anim = FALL;
-			p[FROG].velocity.y += GRAVITY * dt;
+			if (p[FROG].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+				p[FROG].velocity.y += GRAVITY * dt;
 
 		}
 	}
@@ -327,6 +331,7 @@ void displayPlayer(Window* _window)
 		sfRenderTexture_drawSprite(_window->renderTexture, p[i].sprite, NULL);
 
 		p[i].bounds = sfSprite_getGlobalBounds(p[i].sprite);
+		//p[i].bounds = FlRect(p[i].pos.x - 12.f * PLAYER_SCALE, p[i].pos.y - 8.f * PLAYER_SCALE, 23.f * PLAYER_SCALE, 24.f * PLAYER_SCALE);
 	}
 
 	//sfRectangleShape_setPosition(pRectangle, vector2f(p[viewFocus].bounds.left, p[viewFocus].bounds.top));
@@ -377,11 +382,6 @@ playerType getViewFocus()
 	return viewFocus;
 }
 
-sfFloatRect getPlayerRect(playerType _type)
-{
-	return p[_type].bounds;
-}
-
 sfVector2f getPlayerPos(playerType _type)
 {
 	return p[_type].pos;
@@ -420,6 +420,11 @@ float getPlayerLauchingTimer(playerType _type)
 sfFloatRect getPlayerBounds(playerType _type)
 {
 	return p[_type].bounds;
+}
+
+sfFloatRect* pGetPlayerBounds(playerType _type)
+{
+	return &p[_type].bounds;
 }
 
 void setPlayerMusicBlocTimer(playerType _type, float _timer)

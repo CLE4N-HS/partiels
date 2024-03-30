@@ -28,8 +28,6 @@ sfVector2f getLerpView(sfVector2f _lastViewPos, sfVector2f _viewPos);
 
 playerType getViewFocus();
 
-sfFloatRect getPlayerRect(playerType _type);
-
 sfVector2f getPlayerPos(playerType _type);
 
 void setPlayerPos(playerType _type, sfVector2f _pos);
@@ -45,6 +43,8 @@ void setPlayerLauchingTimer(playerType _type, float _launchingTimer);
 float getPlayerLauchingTimer(playerType _type);
 
 sfFloatRect getPlayerBounds(playerType _type);
+
+sfFloatRect* pGetPlayerBounds(playerType _type);
 
 void setPlayerMusicBlocTimer(playerType _type, float _timer);
 

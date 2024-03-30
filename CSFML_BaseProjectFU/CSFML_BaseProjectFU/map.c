@@ -2,6 +2,7 @@
 #include "editor.h"
 #include "CustomMath.h"
 #include "gamepadx.h"
+#include "finish.h"
 
 #define NB_VERTEX 100
 #define SECONDS_BETWEEN 0.04197f
@@ -44,6 +45,8 @@ Slingshot slingshot;
 float changeMapTimer;
 
 sfBool isMapF;
+sfVector2f frogDoorPos;
+sfVector2f astronautDoorPos;
 
 void initMap()
 {
@@ -52,6 +55,10 @@ void initMap()
 	nbMap = 1;
 	loadMap(1);
 	changeMapTimer = 0.f;
+
+	isMapF = sfFalse;
+	frogDoorPos = VECTOR2F_NULL;
+	astronautDoorPos = VECTOR2F_NULL;
 
 	castleTexture = GetTexture("castleTiles");
 	slingshotTexture = GetTexture("slingshot");
@@ -222,10 +229,12 @@ void updateMap(Window* _window)
 				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(FROG), NULL)) {
 					b[j][i].rect = IntRect(32, 0, 32, 32);
 					nbPlayerAtDoors++;
+					frogDoorPos = AddVectors(b[j][i].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f));
 				}
 				else if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(ASTRONAUT), NULL)) {
 					b[j][i].rect = IntRect(64, 0, 32, 32);
 					nbPlayerAtDoors++;
+					astronautDoorPos = AddVectors(b[j][i].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f));
 				}
 				else
 					b[j][i].rect = IntRect(0, 0, 32, 32);
@@ -234,6 +243,14 @@ void updateMap(Window* _window)
 				break;
 			}
 		}
+	}
+
+	// finish condition
+	if (nbPlayerAtDoors >= 2)
+	{
+		isMapF = sfTrue;
+		setFinishViewPos(0, frogDoorPos);
+		setFinishViewPos(1, astronautDoorPos);
 	}
 
 	// reset xboxA button
@@ -531,7 +548,7 @@ void loadMap(int _nbMap)
 sfVector2i getPlayerBlockPos(sfVector2f _pos)
 {
 	sfVector2f fPos = MultiplyVector(_pos, 1.f / BLOCK_SIZE / BLOCK_SCALE);
-	sfVector2i iPos;
+	sfVector2i iPos = vector2i(0, 0);
 	iPos.x = (int)fPos.x;
 	iPos.y = (int)fPos.y;
 	return iPos;
@@ -883,4 +900,9 @@ playerType getWhoIsInSlingshot()
 sfVector2f getSlingshotBasePos()
 {
 	return slingshot.basePos;
+}
+
+sfBool isMapFinished()
+{
+	return isMapF;
 }

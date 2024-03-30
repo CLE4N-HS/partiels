@@ -126,7 +126,11 @@ void windowUpdate(Window* This)
 
 void windowDraw(Window* This)
 {
-	sfRenderTexture_setView(This->renderTexture, mainView->view);
+	if (!isMapFinished())
+		sfRenderTexture_setView(This->renderTexture, mainView->view);
+	else
+		stateDisplay(This);
+
 	stateDisplay(This);
 
 	sfRenderTexture_display(This->renderTexture);

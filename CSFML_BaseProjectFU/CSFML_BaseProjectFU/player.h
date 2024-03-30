@@ -15,6 +15,15 @@ typedef enum {
 	ASTRONAUT
 }playerType;
 
+typedef enum {
+	NO_ANIM,
+	IDLE,
+	RUN,
+	JUMP,
+	FALL,
+	THROW
+}playerAnim;
+
 
 void initPlayer();
 
@@ -49,3 +58,5 @@ sfFloatRect* pGetPlayerBounds(playerType _type);
 void setPlayerMusicBlocTimer(playerType _type, float _timer);
 
 float getPlayerMusicBlocTimer(playerType _type);
+
+void setAnimPlayer(playerType _type, playerAnim _anim);

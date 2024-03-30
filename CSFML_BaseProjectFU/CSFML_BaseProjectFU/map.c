@@ -251,6 +251,8 @@ void updateMap(Window* _window)
 		isMapF = sfTrue;
 		setFinishViewPos(0, frogDoorPos);
 		setFinishViewPos(1, astronautDoorPos);
+		setAnimPlayer(FROG, THROW);
+		setAnimPlayer(ASTRONAUT, THROW);
 	}
 
 	// reset xboxA button
@@ -905,4 +907,11 @@ sfVector2f getSlingshotBasePos()
 sfBool isMapFinished()
 {
 	return isMapF;
+}
+
+sfVector2f getFinishPlayerPos(int _nb)
+{
+	if (_nb == 0) return frogDoorPos;
+	if (_nb == 1) return astronautDoorPos;
+	return VECTOR2F_NULL;
 }

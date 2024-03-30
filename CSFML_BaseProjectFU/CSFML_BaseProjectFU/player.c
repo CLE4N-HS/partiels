@@ -4,15 +4,7 @@
 #include "map.h"
 #include "CustomMath.h"
 #include "viewManager.h"
-
-typedef enum {
-	NO_ANIM,
-	IDLE,
-	RUN,
-	JUMP,
-	FALL,
-	THROW
-}playerAnim;
+#include "finish.h"
 
 typedef struct {
 	playerType type;
@@ -94,6 +86,8 @@ void updatePlayer(Window* _window)
 {
 	float dt = getDeltaTime();
 
+	sfBool _isMapF = isMapFinished();
+
 	// to remove
 	if (sfKeyboard_isKeyPressed(sfKeyA)) {
 		p[FROG].pos = vector2f(300.f, 520.f);
@@ -101,128 +95,138 @@ void updatePlayer(Window* _window)
 	}
 	if (sfKeyboard_isKeyPressed(sfKeyE)) p[ASTRONAUT].pos = p[FROG].pos;
 
-	// movement
-	float xStickPos = getStickPos(0, sfTrue, sfTrue);
-	float yStickPos = getStickPos(0, sfTrue, sfFalse);
-
-	if (isSomeoneInSlingshot())
+	if (!_isMapF)
 	{
-		playerType _type = getWhoIsInSlingshot();
+		// movement
+		float xStickPos = getStickPos(0, sfTrue, sfTrue);
+		float yStickPos = getStickPos(0, sfTrue, sfFalse);
 
-		p[_type].forward = Normalize(vector2f(xStickPos, -yStickPos));
-		p[_type].velocity = MultiplyVector(p[_type].forward, 100.f);
-		p[_type].anim = IDLE;
+		if (isSomeoneInSlingshot())
+		{
+			playerType _type = getWhoIsInSlingshot();
 
-		isCollision3(p[_type].bounds, &p[_type].velocity);
+			p[_type].forward = Normalize(vector2f(xStickPos, -yStickPos));
 
-		updateSlingshot(_window);
+			if (sfKeyboard_isKeyPressed(sfKeyQ)) p[_type].forward.x = -1.f;
+			if (sfKeyboard_isKeyPressed(sfKeyD)) p[_type].forward.x = 1.f;
+			if (sfKeyboard_isKeyPressed(sfKeyZ)) p[_type].forward.y = -1.f;
+			if (sfKeyboard_isKeyPressed(sfKeyS)) p[_type].forward.y = 1.f;
 
-		if (p[_type].pos.x > getSlingshotBasePos().x) p[_type].isFlipped = sfTrue;
-		else p[_type].isFlipped = sfFalse;
+			p[_type].velocity = MultiplyVector(p[_type].forward, 100.f);
+			p[_type].anim = IDLE;
 
-	}
-	else if (p[viewFocus].musicBlocTimer < MUSIC_BLOC_TIMER_DURATION)
-	{
-		p[viewFocus].velocity.y = -1000.f + p[viewFocus].musicBlocTimer * 1000.f;
-		p[viewFocus].musicBlocTimer += dt;
-		isCollision3(p[viewFocus].bounds, &p[viewFocus].velocity);
-	}
-	else if (viewTimer >= LERP_VIEW_TIMER && p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION && p[viewFocus].musicBlocTimer >= MUSIC_BLOC_TIMER_DURATION)
-	{
-		if (((xStickPos < -50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyQ)) && !isCollision2(p[FROG].bounds, sfTrue, sfTrue)) {
-			p[FROG].velocity.x = -p[FROG].speed;
-			p[FROG].anim = RUN;
-			p[FROG].isFlipped = sfTrue;
-			viewFocus = FROG;
+			isCollision3(p[_type].bounds, &p[_type].velocity);
+
+			updateSlingshot(_window);
+
+			if (p[_type].pos.x > getSlingshotBasePos().x) p[_type].isFlipped = sfTrue;
+			else p[_type].isFlipped = sfFalse;
+
 		}
-		else if (((xStickPos > 50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyD)) && !isCollision2(p[FROG].bounds, sfTrue, sfFalse)) {
-			p[FROG].velocity.x = p[FROG].speed;
-			p[FROG].anim = RUN;
-			p[FROG].isFlipped = sfFalse;
-			viewFocus = FROG;
+		else if (p[viewFocus].musicBlocTimer < MUSIC_BLOC_TIMER_DURATION)
+		{
+			p[viewFocus].velocity.y = -1000.f + p[viewFocus].musicBlocTimer * 1000.f;
+			p[viewFocus].musicBlocTimer += dt;
+			isCollision3(p[viewFocus].bounds, &p[viewFocus].velocity);
+		}
+		else if (viewTimer >= LERP_VIEW_TIMER && p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION && p[viewFocus].musicBlocTimer >= MUSIC_BLOC_TIMER_DURATION)
+		{
+			if (((xStickPos < -50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyQ)) && !isCollision2(p[FROG].bounds, sfTrue, sfTrue)) {
+				p[FROG].velocity.x = -p[FROG].speed;
+				p[FROG].anim = RUN;
+				p[FROG].isFlipped = sfTrue;
+				viewFocus = FROG;
+			}
+			else if (((xStickPos > 50.f && yStickPos > -50.f && yStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyD)) && !isCollision2(p[FROG].bounds, sfTrue, sfFalse)) {
+				p[FROG].velocity.x = p[FROG].speed;
+				p[FROG].anim = RUN;
+				p[FROG].isFlipped = sfFalse;
+				viewFocus = FROG;
+			}
+			else {
+				p[FROG].anim = IDLE;
+				p[FROG].velocity.x = 0.f;
+			}
+
+			if (((yStickPos < -50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyS)) && !isCollision2(p[ASTRONAUT].bounds, sfFalse, sfFalse)) {
+				p[ASTRONAUT].velocity.y = p[ASTRONAUT].speed;
+				p[ASTRONAUT].anim = FALL;
+				viewFocus = ASTRONAUT;
+			}
+			else if (((yStickPos > 50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyZ)) && !isCollision2(p[ASTRONAUT].bounds, sfFalse, sfTrue)) {
+				p[ASTRONAUT].velocity.y = -p[ASTRONAUT].speed;
+				p[ASTRONAUT].anim = JUMP;
+				viewFocus = ASTRONAUT;
+			}
+			else {
+				p[ASTRONAUT].anim = IDLE;
+				p[ASTRONAUT].velocity = VECTOR2F_NULL;
+			}
 		}
 		else {
 			p[FROG].anim = IDLE;
-			p[FROG].velocity.x = 0.f;
-		}
+			if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+				p[FROG].velocity.x = 0.f;
 
-		if (((yStickPos < -50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyS)) && !isCollision2(p[ASTRONAUT].bounds, sfFalse, sfFalse)) {
-			p[ASTRONAUT].velocity.y = p[ASTRONAUT].speed;
-			p[ASTRONAUT].anim = FALL;
-			viewFocus = ASTRONAUT;
-		}
-		else if (((yStickPos > 50.f && xStickPos > -50.f && xStickPos < 50.f) || sfKeyboard_isKeyPressed(sfKeyZ)) && !isCollision2(p[ASTRONAUT].bounds, sfFalse, sfTrue)) {
-			p[ASTRONAUT].velocity.y = -p[ASTRONAUT].speed;
-			p[ASTRONAUT].anim = JUMP;
-			viewFocus = ASTRONAUT;
-		}
-		else {
 			p[ASTRONAUT].anim = IDLE;
-			p[ASTRONAUT].velocity = VECTOR2F_NULL;
+			if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+				p[ASTRONAUT].velocity = VECTOR2F_NULL;
 		}
-	}
-	else {
-		p[FROG].anim = IDLE;
-		if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
-			p[FROG].velocity.x = 0.f;
 
-		p[ASTRONAUT].anim = IDLE;
-		if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
-			p[ASTRONAUT].velocity = VECTOR2F_NULL;
-	}
-
-	if (!isGrounded(p[FROG].pos, &p[FROG].velocity, &p[FROG].drag))
-	{
-		if (!isSomeoneInSlingshot())
+		if (!isGrounded(p[FROG].pos, &p[FROG].velocity, &p[FROG].drag))
 		{
-			p[FROG].anim = FALL;
-			if (p[FROG].lauchingTimer >= LAUNCHING_TIMER_DURATION)
-				p[FROG].velocity.y += GRAVITY * dt;
+			if (!isSomeoneInSlingshot())
+			{
+				p[FROG].anim = FALL;
+				if (p[FROG].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+					p[FROG].velocity.y += GRAVITY * dt;
 
+			}
 		}
-	}
-	else if ((!isSomeoneInSlingshot()))
-	{
-		//p[FROG].velocity.y = 0.f;
-	}
+		else if ((!isSomeoneInSlingshot()))
+		{
+			//p[FROG].velocity.y = 0.f;
+		}
 
-	isCollision3(p[FROG].bounds, &p[FROG].velocity); // not sure if always this
+		isCollision3(p[FROG].bounds, &p[FROG].velocity); // not sure if always this
 
 
-	if (!isGrounded(p[ASTRONAUT].pos, &p[ASTRONAUT].velocity, &p[ASTRONAUT].drag))
-	{
-		//p[ASTRONAUT].anim = FALL;
-		//p[ASTRONAUT].velocity.y += GRAVITY * dt;
-	}
-	//else p[ASTRONAUT].velocity.y = 0.f;
+		if (!isGrounded(p[ASTRONAUT].pos, &p[ASTRONAUT].velocity, &p[ASTRONAUT].drag))
+		{
+			//p[ASTRONAUT].anim = FALL;
+			//p[ASTRONAUT].velocity.y += GRAVITY * dt;
+		}
+		//else p[ASTRONAUT].velocity.y = 0.f;
 
-	if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
-	{
-		//if (!isSomeoneInSlingshot())
-		//{
-		//	if (!isGrounded(p[FROG].pos, &p[FROG].velocity))
-		//	{
-		//		p[FROG].anim = FALL;
-		//		p[FROG].velocity.y += GRAVITY * dt;
-		//	}
-		//	else p[FROG].velocity.y = 0.f;
+		if (p[viewFocus].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+		{
+			//if (!isSomeoneInSlingshot())
+			//{
+			//	if (!isGrounded(p[FROG].pos, &p[FROG].velocity))
+			//	{
+			//		p[FROG].anim = FALL;
+			//		p[FROG].velocity.y += GRAVITY * dt;
+			//	}
+			//	else p[FROG].velocity.y = 0.f;
 
-		//	if (!isGrounded(p[ASTRONAUT].pos, &p[ASTRONAUT].velocity))
-		//	{
-		//		//p[ASTRONAUT].anim = FALL;
-		//		//p[ASTRONAUT].velocity.y += GRAVITY * dt;
-		//	}
-		//	//else p[ASTRONAUT].velocity.y = 0.f;
-		//}
-	}
-	else
-	{
-		p[viewFocus].lauchingTimer += dt;
-		p[viewFocus].velocity = MultiplyVector(p[viewFocus].velocity, 1.f - SLINGSHOT_DRAG * dt);
-		p[viewFocus].velocity = AddVectors(p[viewFocus].velocity, MultiplyVector(vector2f(0.f, SLINGSHOT_GRAVITY), dt));
-		p[viewFocus].anim = THROW;
+			//	if (!isGrounded(p[ASTRONAUT].pos, &p[ASTRONAUT].velocity))
+			//	{
+			//		//p[ASTRONAUT].anim = FALL;
+			//		//p[ASTRONAUT].velocity.y += GRAVITY * dt;
+			//	}
+			//	//else p[ASTRONAUT].velocity.y = 0.f;
+			//}
+		}
+		else
+		{
+			p[viewFocus].lauchingTimer += dt;
+			p[viewFocus].velocity = MultiplyVector(p[viewFocus].velocity, 1.f - SLINGSHOT_DRAG * dt);
+			p[viewFocus].velocity = AddVectors(p[viewFocus].velocity, MultiplyVector(vector2f(0.f, SLINGSHOT_GRAVITY), dt));
+			p[viewFocus].anim = THROW;
 
-		isCollision3(p[viewFocus].bounds, &p[viewFocus].velocity);
+			isCollision3(p[viewFocus].bounds, &p[viewFocus].velocity);
+		}
+
 	}
 
 	for (int i = 0; i < 2; i++)
@@ -273,11 +277,15 @@ void updatePlayer(Window* _window)
 			Animator(&p[i].rect, &p[i].animTimer, 12, 1, 0.075f, 0.f);
 			break;
 		case THROW:
-			Animator(&p[i].rect, &p[i].animTimer, 6, 1, 0.04f, 0.f);
+			if (_isMapF) Animator(&p[i].rect, &p[i].animTimer, 6, 1, 0.2f, 0.f);
+			else Animator(&p[i].rect, &p[i].animTimer, 6, 1, 0.04f, 0.f);
 			break;
 		default:
 			break;
 		}
+
+		if (_isMapF)
+			continue;
 
 		if (p[i].drag.x > 1.f) {
 			p[i].drag.x += dt;
@@ -290,11 +298,15 @@ void updatePlayer(Window* _window)
 				p[i].drag.y = 1.f;
 		}
 
+		
 
 		p[i].velocity = vector2f(p[i].velocity.x / p[i].drag.x, p[i].velocity.y / p[i].drag.y);
 		p[i].pos = AddVectors(p[i].pos, MultiplyVector(p[i].velocity, dt));
 
 	}
+
+	if (_isMapF)
+		return;
 
 	if (lastViewFocus != viewFocus && viewTimer >= LERP_VIEW_TIMER)
 	{
@@ -324,7 +336,8 @@ void displayPlayer(Window* _window)
 {
 	for (int i = 1; i >= 0; i--)
 	{
-		if (p[i].isFlipped) sfSprite_setScale(p[i].sprite, vector2f(-PLAYER_SCALE, PLAYER_SCALE));
+		if (isMapFinished()) sfSprite_setScale(p[i].sprite, getFinishPlayerScale(i));
+		else if (p[i].isFlipped) sfSprite_setScale(p[i].sprite, vector2f(-PLAYER_SCALE, PLAYER_SCALE));
 		else sfSprite_setScale(p[i].sprite, vector2f(PLAYER_SCALE, PLAYER_SCALE));
 		sfSprite_setPosition(p[i].sprite, p[i].pos);
 		sfSprite_setTextureRect(p[i].sprite, p[i].rect);
@@ -435,4 +448,9 @@ void setPlayerMusicBlocTimer(playerType _type, float _timer)
 float getPlayerMusicBlocTimer(playerType _type)
 {
 	return p[_type].musicBlocTimer;
+}
+
+void setAnimPlayer(playerType _type, playerAnim _anim)
+{
+	p[_type].anim = _anim;
 }

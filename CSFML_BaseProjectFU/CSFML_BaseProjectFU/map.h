@@ -130,3 +130,5 @@ playerType getWhoIsInSlingshot();
 sfVector2f getSlingshotBasePos();
 
 sfBool isMapFinished();
+
+sfVector2f getFinishPlayerPos(int _nb);

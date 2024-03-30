@@ -95,6 +95,8 @@ void updateGame(Window* _window)
 		timer = 0.0f;
 	}
 
+	updatePlayer(_window);
+
 	if (isMapFinished())
 	{
 		updateFinish(_window);
@@ -102,7 +104,6 @@ void updateGame(Window* _window)
 	else
 	{
 		updateMap(_window);
-		updatePlayer(_window);
 	}
 
 	

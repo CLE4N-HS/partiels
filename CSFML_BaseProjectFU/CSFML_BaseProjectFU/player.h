@@ -15,6 +15,15 @@ typedef enum {
 	ASTRONAUT
 }playerType;
 
+typedef enum {
+	NO_ANIM,
+	IDLE,
+	RUN,
+	JUMP,
+	FALL,
+	THROW
+}playerAnim;
+
 
 void initPlayer();
 
@@ -27,8 +36,6 @@ sfVector2f getPlayerPosInBounds(playerType _type);
 sfVector2f getLerpView(sfVector2f _lastViewPos, sfVector2f _viewPos);
 
 playerType getViewFocus();
-
-sfFloatRect getPlayerRect(playerType _type);
 
 sfVector2f getPlayerPos(playerType _type);
 
@@ -46,6 +53,10 @@ float getPlayerLauchingTimer(playerType _type);
 
 sfFloatRect getPlayerBounds(playerType _type);
 
+sfFloatRect* pGetPlayerBounds(playerType _type);
+
 void setPlayerMusicBlocTimer(playerType _type, float _timer);
 
 float getPlayerMusicBlocTimer(playerType _type);
+
+void setAnimPlayer(playerType _type, playerAnim _anim);

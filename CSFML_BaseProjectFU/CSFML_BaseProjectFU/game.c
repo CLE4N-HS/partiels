@@ -8,6 +8,7 @@
 #include "pause.h"
 #include "player.h"
 #include "editor.h"
+#include "finish.h"
 
 #include <Windows.h>
 
@@ -66,6 +67,7 @@ void initGame(Window* _window)
 
 	initPlayer();
 	initMap();
+	initFinsih();
 	if (isEditor) initEditor();
 
 	//Sleep(2000); // A enlever juste pour le test Thread
@@ -93,9 +95,17 @@ void updateGame(Window* _window)
 		timer = 0.0f;
 	}
 
-
-	updateMap(_window);
 	updatePlayer(_window);
+
+	if (isMapFinished())
+	{
+		updateFinish(_window);
+	}
+	else
+	{
+		updateMap(_window);
+	}
+
 	
 }
 
@@ -109,6 +119,9 @@ void displayGame(Window* _window)
 	displayMap(_window);
 	displayPlayer(_window);
 	displayObjects(_window);
+
+	if (isMapFinished())
+		displayFinish(_window);
 }
 
 void deinitGame()

@@ -2,8 +2,10 @@
 #include "editor.h"
 #include "CustomMath.h"
 #include "gamepadx.h"
+#include "finish.h"
 
 #define NB_VERTEX 100
+#define SECONDS_BETWEEN 0.04197f
 #define MOVING_PLATFORMS_SPEED 320.f
 
 typedef struct {
@@ -22,6 +24,8 @@ sfTexture* slingshotTexture;
 sfTexture* leftMovingTexture;
 sfTexture* rightMovingTexture;
 sfTexture* musicBlocTexture;
+sfTexture* doorsTexture;
+
 sfTexture* xboxATexture;
 
 sfVertexArray* vArray;
@@ -40,6 +44,10 @@ Slingshot slingshot;
 
 float changeMapTimer;
 
+sfBool isMapF;
+sfVector2f frogDoorPos;
+sfVector2f astronautDoorPos;
+
 void initMap()
 {
 	mapSprite = sfSprite_create();
@@ -48,11 +56,17 @@ void initMap()
 	loadMap(1);
 	changeMapTimer = 0.f;
 
+	isMapF = sfFalse;
+	frogDoorPos = VECTOR2F_NULL;
+	astronautDoorPos = VECTOR2F_NULL;
+
 	castleTexture = GetTexture("castleTiles");
 	slingshotTexture = GetTexture("slingshot");
 	leftMovingTexture = GetTexture("leftMoving");
 	rightMovingTexture = GetTexture("rightMoving");
 	musicBlocTexture = GetTexture("musicBloc");
+	doorsTexture = GetTexture("doors");
+	
 	xboxATexture = GetTexture("xboxA");
 
 	vArray = sfVertexArray_create();
@@ -87,25 +101,42 @@ void updateSlingshot(Window* _window)
 
 	slingshot.vertex[1].position = getPlayerPos(_type);
 
-	customAttract(getPlayerPos(_type), pGetPlayerVelocity(_type), slingshot.basePos, /*600.f*/ GetSqrMagnitude(CreateVector(slingshot.basePos, getPlayerPos(_type))) * 0.02f, 1000.f, dt);
+	customAttract(getPlayerPos(_type), pGetPlayerVelocity(_type), slingshot.basePos, GetSqrMagnitude(CreateVector(slingshot.basePos, getPlayerPos(_type))) * 1.2f, 1000.f, dt);
 
 
-	float t = 0.f;
-	sfVector2f tmpVelocity = CreateVector(getPlayerPos(_type), slingshot.basePos);
-	sfVector2f newVelocity = tmpVelocity;
-	for (int i = 0; i < NB_VERTEX; i++)
+	float dtt = 0.f;
+	sfVertex vertex;
+	for (int k = 0; k < NB_VERTEX; k++)
 	{
+		sfVector2f futurePos = MultiplyVector(CreateVector(getPlayerPos(_type), slingshot.basePos), 30.f);
+		futurePos.y += 0.5f * GRAVITY * dtt * 100.f;
 
-		sfVector2f nextPos = MultiplyVector(tmpVelocity, 123.f);
-		tmpVelocity = MultiplyVector(newVelocity, 1.f - SLINGSHOT_DRAG * dt * 1.f);
-		float a = GRAVITY * t * 250.f;
-		nextPos.y += a;
-		sfVertex vertex;
 		vertex.color = sfWhite;
-		vertex.position = AddVectors(getPlayerPos(_type), MultiplyVector(nextPos, t / 2.f));
+		vertex.position = AddVectors(getPlayerPos(_type), MultiplyVector(futurePos, dtt / 2.f * 30.f));
 		sfVertexArray_append(vArray, vertex);
-		t = i * 0.1f / NB_VERTEX;
+
+		dtt = (float)k * SECONDS_BETWEEN / NB_VERTEX;
+
 	}
+
+
+
+	//float t = 0.f;
+	//sfVector2f tmpVelocity = CreateVector(getPlayerPos(_type), slingshot.basePos);
+	//sfVector2f newVelocity = tmpVelocity;
+	//for (int i = 0; i < NB_VERTEX; i++)
+	//{
+	//
+	//	sfVector2f nextPos = MultiplyVector(tmpVelocity, 123.f);
+	//	tmpVelocity = MultiplyVector(newVelocity, 1.f - SLINGSHOT_DRAG * dt * 1.f);
+	//	float a = GRAVITY * t * 250.f;
+	//	nextPos.y += a;
+	//	sfVertex vertex;
+	//	vertex.color = sfWhite;
+	//	vertex.position = AddVectors(getPlayerPos(_type), MultiplyVector(nextPos, t / 2.f));
+	//	sfVertexArray_append(vArray, vertex);
+	//	t = i * 0.1f / NB_VERTEX;
+	//}
 
 
 	if (isButtonPressed(0, B) || sfKeyboard_isKeyPressed(sfKeyBackspace))
@@ -121,7 +152,7 @@ void updateSlingshot(Window* _window)
 
 	if (slingshot.canLaunch && (isButtonPressed(0, A) || sfKeyboard_isKeyPressed(sfKeyEnter)))
 	{
-		customAddForce(pGetPlayerVelocity(_type), MultiplyVector(CreateVector(getPlayerPos(_type), slingshot.basePos), 10.f));
+		customAddForce(pGetPlayerVelocity(_type), MultiplyVector(CreateVector(getPlayerPos(_type), slingshot.basePos), 30.f));
 		slingshot.isInSlingshot = sfFalse;
 		setPlayerLauchingTimer(_type, 0.f);
 	}
@@ -132,8 +163,10 @@ void updateMap(Window* _window)
 	float dt = getDeltaTime();
 
 	playerType _viewFocus = getViewFocus();
-	sfFloatRect _bounds = getPlayerRect(_viewFocus);
+	sfFloatRect _bounds = getPlayerBounds(_viewFocus);
 	xboxA.canShow = sfFalse;
+
+	int nbPlayerAtDoors = 0;
 
 	for (int j = 0; j < NB_BLOCKS_Y; j++)
 	{
@@ -188,10 +221,38 @@ void updateMap(Window* _window)
 				b[j][i].timer += dt;
 				Animator(&b[j][i].rect, &b[j][i].timer, 3, 0, 0.1f, 0.f);
 				break;
+			case T_MUSICBLOC:
+				if (b[j][i].timer > 0.f)
+					b[j][i].timer -= dt;
+				break;
+			case T_DOOR:
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(FROG), NULL)) {
+					b[j][i].rect = IntRect(32, 0, 32, 32);
+					nbPlayerAtDoors++;
+					frogDoorPos = AddVectors(b[j][i].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f));
+				}
+				else if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(ASTRONAUT), NULL)) {
+					b[j][i].rect = IntRect(64, 0, 32, 32);
+					nbPlayerAtDoors++;
+					astronautDoorPos = AddVectors(b[j][i].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f));
+				}
+				else
+					b[j][i].rect = IntRect(0, 0, 32, 32);
+				break;
 			default:
 				break;
 			}
 		}
+	}
+
+	// finish condition
+	if (nbPlayerAtDoors >= 2)
+	{
+		isMapF = sfTrue;
+		setFinishViewPos(0, frogDoorPos);
+		setFinishViewPos(1, astronautDoorPos);
+		setAnimPlayer(FROG, THROW);
+		setAnimPlayer(ASTRONAUT, THROW);
 	}
 
 	// reset xboxA button
@@ -225,6 +286,9 @@ void displayMap(Window* _window)
 	{
 		for (int i = 0; i < NB_BLOCKS_X; i++)
 		{
+			sfSprite_setPosition(mapSprite, b[j][i].pos);
+			sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+
 			switch (b[j][i].type)
 			{
 			case T_SLINGSHOT:
@@ -240,31 +304,28 @@ void displayMap(Window* _window)
 				break;
 			case T_LLEFTMOVING:
 				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
-				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
 				break;
 			case T_LMOVING:
 				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
-				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
 				break;
 			case T_LRIGHTMOVING:
 				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
-				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
 				break;
 			case T_RLEFTMOVING:
 				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
-				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
 				break;
 			case T_RMOVING:
 				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
-				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
 				break;
 			case T_RRIGHTMOVING:
 				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
-				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
 				break;
 			case T_MUSICBLOC:
+				if (b[j][i].timer > 0.f) sfSprite_setPosition(mapSprite, AddVectors(b[j][i].pos, vector2f(0.f, b[j][i].timer * BLOCK_SIZE * 2)));
 				sfSprite_setTexture(mapSprite, musicBlocTexture, sfFalse);
-				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+				break;
+			case T_DOOR:
+				sfSprite_setTexture(mapSprite, doorsTexture, sfFalse);
 				break;
 			default:
 				sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
@@ -272,7 +333,6 @@ void displayMap(Window* _window)
 				break;
 			}
 			sfSprite_setTextureRect(mapSprite, b[j][i].rect);
-			sfSprite_setPosition(mapSprite, b[j][i].pos);
 			sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
 		}
 	}
@@ -490,7 +550,7 @@ void loadMap(int _nbMap)
 sfVector2i getPlayerBlockPos(sfVector2f _pos)
 {
 	sfVector2f fPos = MultiplyVector(_pos, 1.f / BLOCK_SIZE / BLOCK_SCALE);
-	sfVector2i iPos;
+	sfVector2i iPos = vector2i(0, 0);
 	iPos.x = (int)fPos.x;
 	iPos.y = (int)fPos.y;
 	return iPos;
@@ -500,6 +560,9 @@ sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity, sfVector2f* _drag)
 {
 	sfVector2i blockPos = getPlayerBlockPos(vector2f(_pos.x - 32.f, _pos.y + 48.f)); // offset to not count the alpha 0
 	sfVector2i blockPos2 = getPlayerBlockPos(vector2f(_pos.x + 32.f, _pos.y + 48.f));
+
+	if (blockPos.y < 0 || blockPos.y >= NB_BLOCKS_Y || blockPos.x < 0 || blockPos.x >= NB_BLOCKS_X || blockPos2.y < 0 || blockPos2.y >= NB_BLOCKS_Y || blockPos2.x < 0 || blockPos2.x >= NB_BLOCKS_X) // out of array
+		return sfFalse;
 
 	//tmpRect = FlRect(b[blockPos.y][blockPos.x].pos.x, b[blockPos.y][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 	//tmpRect2 = FlRect(b[blockPos2.y][blockPos2.x].pos.x, b[blockPos2.y][blockPos2.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
@@ -532,14 +595,56 @@ sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity, sfVector2f* _drag)
 			_velocity->y = 0.f;
 			break;
 		case T_MUSICBLOC:
-			if (getPlayerMusicBlocTimer(FROG) >= 0.9f)
+			if (getPlayerMusicBlocTimer(FROG) >= 0.9f) {
 				setPlayerMusicBlocTimer(FROG, 0.f); // TODO : DYNAMIC
+				b[blockPos.y][blockPos.x].timer = MUSIC_BLOC_TIMER_DURATION;
+			}
 			//_drag->y = 1.1f;
 			_velocity->x = 0.f;
 			break;
 		default:
 			break;
 		}
+
+		switch (b[blockPos2.y][blockPos2.x].type)
+		{
+		case T_LLEFTMOVING:
+			_velocity->x = -MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
+			break;
+		case T_LMOVING:
+			_velocity->x = -MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
+			break;
+		case T_LRIGHTMOVING:
+			_velocity->x = -MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
+			break;
+		case T_RLEFTMOVING:
+			_velocity->x = MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
+			break;
+		case T_RMOVING:
+			_velocity->x = MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
+			break;
+		case T_RRIGHTMOVING:
+			_velocity->x = MOVING_PLATFORMS_SPEED;
+			_velocity->y = 0.f;
+			break;
+		case T_MUSICBLOC:
+			if (getPlayerMusicBlocTimer(FROG) >= 0.9f) {
+				setPlayerMusicBlocTimer(FROG, 0.f); // TODO : DYNAMIC
+				b[blockPos2.y][blockPos2.x].timer = MUSIC_BLOC_TIMER_DURATION;
+			}
+			//_drag->y = 1.1f;
+			_velocity->x = 0.f;
+			break;
+		default:
+			break;
+		}
+
+
 		return sfTrue;
 	}
 
@@ -611,13 +716,13 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 	sfVector2i blockPos = getPlayerBlockPos(playerPos);
 	sfVector2i blockPos2 = getPlayerBlockPos(playerPos2);
 
-	tmpPlayerRect = FlRect(b[blockPos.y][blockPos.x].pos.x, b[blockPos.y][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
-	tmpPlayerRect2 = FlRect(b[blockPos2.y][blockPos2.x].pos.x, b[blockPos2.y][blockPos2.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
-
-
 	if (blockPos.y < 0 || blockPos.y >= NB_BLOCKS_Y || blockPos.x < 0 || blockPos.x >= NB_BLOCKS_X || blockPos2.y < 0 || blockPos2.y >= NB_BLOCKS_Y || blockPos2.x < 0 || blockPos2.x >= NB_BLOCKS_X) // out of array
 		return sfFalse;
 
+	tmpPlayerRect = FlRect(b[blockPos.y][blockPos.x].pos.x, b[blockPos.y][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+	tmpPlayerRect2 = FlRect(b[blockPos2.y][blockPos2.x].pos.x, b[blockPos2.y][blockPos2.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+
+	
 	if (_XAxis)
 	{
 		if (_UpOrLeft && blockPos.x > 0 && blockPos2.x > 0)
@@ -797,4 +902,16 @@ playerType getWhoIsInSlingshot()
 sfVector2f getSlingshotBasePos()
 {
 	return slingshot.basePos;
+}
+
+sfBool isMapFinished()
+{
+	return isMapF;
+}
+
+sfVector2f getFinishPlayerPos(int _nb)
+{
+	if (_nb == 0) return frogDoorPos;
+	if (_nb == 1) return astronautDoorPos;
+	return VECTOR2F_NULL;
 }

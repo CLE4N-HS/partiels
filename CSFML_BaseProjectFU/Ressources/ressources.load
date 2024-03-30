@@ -18,5 +18,6 @@ single slingshot ../Ressources/Textures/GAME/objects/slingshot.png
 single leftMoving ../Ressources/Textures/GAME/objects/leftMoving.png
 single rightMoving ../Ressources/Textures/GAME/objects/rightMoving.png
 single musicBloc ../Ressources/Textures/GAME/objects/musicBloc.png
+single doors ../Ressources/Textures/GAME/tiles/doors.png
 single xboxA ../Ressources/Textures/GAME/objects/xboxA.png
 [end]

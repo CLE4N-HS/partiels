@@ -191,6 +191,7 @@ void updateEditor(Window* _window)
 			case T_RMOVING: tileCursorRect = IntRect(0, 32, 32, 32); break;
 			case T_RRIGHTMOVING: tileCursorRect = IntRect(0, 64, 32, 32); break;
 			case T_MUSICBLOC: tileCursorRect = IntRect(0, 0, 32, 32); break;
+			case T_DOOR: tileCursorRect = IntRect(0, 0, 32, 32); break;
 			default: break;
 		}
 
@@ -288,6 +289,7 @@ void updateEditor(Window* _window)
 					case T_RMOVING: b[j][i].rect = IntRect(0, 32, 32, 32); b[j][i].isSolid = sfTrue; break;
 					case T_RRIGHTMOVING: b[j][i].rect = IntRect(0, 64, 32, 32); b[j][i].isSolid = sfTrue; break;
 					case T_MUSICBLOC: b[j][i].rect = IntRect(0, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
+					case T_DOOR: b[j][i].rect = IntRect(0, 0, 32, 32); break;
 					default: break;
 					//}
 				//}
@@ -461,6 +463,8 @@ void updateEditor(Window* _window)
 				currentTile = T_RRIGHTMOVING;
 			else if ((mousePosX > 96.f * 2.f && mousePosX < 128.f * 2.f) && (mousePosY > 224.f * 2.f && mousePosY < 256.f * 2.f))
 				currentTile = T_MUSICBLOC;
+			else if ((mousePosX > 128.f * 2.f && mousePosX < 160.f * 2.f) && (mousePosY > 224.f * 2.f && mousePosY < 256.f * 2.f))
+				currentTile = T_DOOR;
 
 
 			else
@@ -556,6 +560,7 @@ void displayEditor(Window* _window)
 	else if (currentTile == T_LLEFTMOVING || currentTile == T_LMOVING || currentTile == T_LRIGHTMOVING) sfSprite_setTexture(tileCursor, GetTexture("leftMoving"), sfFalse);
 	else if (currentTile == T_RLEFTMOVING || currentTile == T_RMOVING || currentTile == T_RRIGHTMOVING) sfSprite_setTexture(tileCursor, GetTexture("rightMoving"), sfFalse);
 	else if (currentTile == T_MUSICBLOC) sfSprite_setTexture(tileCursor, GetTexture("musicBloc"), sfFalse);
+	else if (currentTile == T_DOOR) sfSprite_setTexture(tileCursor, GetTexture("doors"), sfFalse);
 	else sfSprite_setTexture(tileCursor, GetTexture("castleTiles"), sfFalse);
 
 	sfSprite_setTextureRect(tileCursor, tileCursorRect);

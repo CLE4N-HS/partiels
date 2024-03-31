@@ -3,6 +3,8 @@
 #include "CustomMath.h"
 #include "gamepadx.h"
 #include "finish.h"
+#include "hud.h"
+#include "particlesSystemManager.h"
 
 #define NB_VERTEX 100
 #define SECONDS_BETWEEN 0.04197f
@@ -25,6 +27,8 @@ sfTexture* leftMovingTexture;
 sfTexture* rightMovingTexture;
 sfTexture* musicBlocTexture;
 sfTexture* doorsTexture;
+sfTexture* spawnTexture;
+sfTexture* objectsTexture;
 
 sfTexture* xboxATexture;
 
@@ -66,6 +70,8 @@ void initMap()
 	rightMovingTexture = GetTexture("rightMoving");
 	musicBlocTexture = GetTexture("musicBloc");
 	doorsTexture = GetTexture("doors");
+	spawnTexture = GetTexture("spawn");
+	objectsTexture = GetTexture("objects");
 	
 	xboxATexture = GetTexture("xboxA");
 
@@ -239,6 +245,54 @@ void updateMap(Window* _window)
 				else
 					b[j][i].rect = IntRect(0, 0, 32, 32);
 				break;
+			case T_GKEY:
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(FROG), NULL)) {
+					collectKey(FROG, 0);
+					b[j][i].type = T_EMPTY;
+					b[j][i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				}
+				else if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(ASTRONAUT), NULL)) {
+					collectKey(ASTRONAUT, 0);
+					b[j][i].type = T_EMPTY;
+					b[j][i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				}
+				break;
+			case T_BKEY:
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(FROG), NULL)) {
+					collectKey(FROG, 1);
+					b[j][i].type = T_EMPTY;
+					b[j][i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				}
+				else if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(ASTRONAUT), NULL)) {
+					collectKey(ASTRONAUT, 1);
+					b[j][i].type = T_EMPTY;
+					b[j][i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				}
+				break;
+			case T_RKEY:
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(FROG), NULL)) {
+					collectKey(FROG, 2);
+					b[j][i].type = T_EMPTY;
+					b[j][i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				}
+				else if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(ASTRONAUT), NULL)) {
+					collectKey(ASTRONAUT, 2);
+					b[j][i].type = T_EMPTY;
+					b[j][i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				}
+				break;
+			case T_YKEY:
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(FROG), NULL)) {
+					collectKey(FROG, 3);
+					b[j][i].type = T_EMPTY;
+					b[j][i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				}
+				else if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(ASTRONAUT), NULL)) {
+					collectKey(ASTRONAUT, 3);
+					b[j][i].type = T_EMPTY;
+					b[j][i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				}
+				break;
 			default:
 				break;
 			}
@@ -276,6 +330,8 @@ void updateMap(Window* _window)
 	if (key > 0 && changeMapTimer > 0.5f) {
 		changeMapTimer = 0.f;
 		loadMap(key);
+		setPlayerSpawnPos();
+		setupKeys();
 		nbMap = key;
 	}
 }
@@ -289,9 +345,9 @@ void displayMap(Window* _window)
 			sfSprite_setPosition(mapSprite, b[j][i].pos);
 			sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
 
-			switch (b[j][i].type)
-			{
-			case T_SLINGSHOT:
+			blockType tmpType = b[j][i].type;
+
+			if (tmpType == T_SLINGSHOT) {
 				if (!slingshot.isInSlingshot) {
 					sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
 					sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
@@ -301,39 +357,73 @@ void displayMap(Window* _window)
 				}
 				sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
 				sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
-				break;
-			case T_LLEFTMOVING:
-				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
-				break;
-			case T_LMOVING:
-				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
-				break;
-			case T_LRIGHTMOVING:
-				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
-				break;
-			case T_RLEFTMOVING:
-				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
-				break;
-			case T_RMOVING:
-				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
-				break;
-			case T_RRIGHTMOVING:
-				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
-				break;
-			case T_MUSICBLOC:
+			}
+			else if (tmpType >= T_LLEFTMOVING && tmpType <= T_LRIGHTMOVING) sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
+			else if (tmpType >= T_RLEFTMOVING && tmpType <= T_RRIGHTMOVING) sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
+			else if (tmpType == T_MUSICBLOC) {
 				if (b[j][i].timer > 0.f) sfSprite_setPosition(mapSprite, AddVectors(b[j][i].pos, vector2f(0.f, b[j][i].timer * BLOCK_SIZE * 2)));
 				sfSprite_setTexture(mapSprite, musicBlocTexture, sfFalse);
-				break;
-			case T_DOOR:
-				sfSprite_setTexture(mapSprite, doorsTexture, sfFalse);
-				break;
-			default:
-				sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
-				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
-				break;
 			}
+			else if (tmpType == T_DOOR) sfSprite_setTexture(mapSprite, doorsTexture, sfFalse);
+			else if (tmpType == T_FROGSPAWN || tmpType == T_ASTRONAUTSPAWN) sfSprite_setTexture(mapSprite, spawnTexture, sfFalse);
+			else if (tmpType >= T_GLOCK && tmpType <= T_YPRESSEDBUTTON) sfSprite_setTexture(mapSprite, objectsTexture, sfFalse);
+			else sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
+
 			sfSprite_setTextureRect(mapSprite, b[j][i].rect);
 			sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+
+
+			//switch (b[j][i].type)
+			//{
+			//case T_SLINGSHOT:
+			//	if (!slingshot.isInSlingshot) {
+			//		sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
+			//		sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
+			//		sfSprite_setTextureRect(mapSprite, IntRect(66, 0, 44, 209));
+			//		sfSprite_setPosition(mapSprite, b[j][i].pos);
+			//		sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+			//	}
+			//	sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
+			//	sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
+			//	break;
+			//case T_LLEFTMOVING:
+			//	sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
+			//	break;
+			//case T_LMOVING:
+			//	sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
+			//	break;
+			//case T_LRIGHTMOVING:
+			//	sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
+			//	break;
+			//case T_RLEFTMOVING:
+			//	sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
+			//	break;
+			//case T_RMOVING:
+			//	sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
+			//	break;
+			//case T_RRIGHTMOVING:
+			//	sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
+			//	break;
+			//case T_MUSICBLOC:
+			//	if (b[j][i].timer > 0.f) sfSprite_setPosition(mapSprite, AddVectors(b[j][i].pos, vector2f(0.f, b[j][i].timer * BLOCK_SIZE * 2)));
+			//	sfSprite_setTexture(mapSprite, musicBlocTexture, sfFalse);
+			//	break;
+			//case T_DOOR:
+			//	sfSprite_setTexture(mapSprite, doorsTexture, sfFalse);
+			//	break;
+			//case T_FROGSPAWN:
+			//	sfSprite_setTexture(mapSprite, spawnTexture, sfFalse);
+			//	break;
+			//case T_ASTRONAUTSPAWN:
+			//	sfSprite_setTexture(mapSprite, spawnTexture, sfFalse);
+			//	break;
+			//default:
+			//	sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
+			//	sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+			//	break;
+			//}
+			//sfSprite_setTextureRect(mapSprite, b[j][i].rect);
+			//sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
 		}
 	}
 
@@ -732,14 +822,48 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 				sfFloatRect blockRect = FlRect(b[blockPos.y][blockPos.x - 1].pos.x, b[blockPos.y][blockPos.x - 1].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 				tmpRect = blockRect;
 				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
-					return sfTrue;
+				{
+					switch (b[blockPos.y][blockPos.x - 1].type)
+					{
+					case T_LEFTPLATFORM: break;
+					case T_PLATFORM: break;
+					case T_GLOCK:
+						if (canOpenLock(getViewFocus(), 0)) {
+							b[blockPos.y][blockPos.x - 1].type = T_EMPTY;
+							b[blockPos.y][blockPos.x - 1].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+							b[blockPos.y][blockPos.x - 1].isSolid = sfFalse;
+							CreateParticles(AddVectors(b[blockPos.y][blockPos.x - 1].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f)), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(16.f, 16.f), 0.f, 360.f, 100.f, 10.f, 100.f, 200.f, 10.f, color(255, 255, 255, 255), color(255, 255, 255, 255), 1.f, 1.f, 1, "objects", IntRect(0, 0, 32, 32), NULL, 0.f, 0.f, 0.f);
+						}
+						return sfTrue;
+						break;
+					default:
+						return sfTrue;
+					}
+				}
 			}
 			if (b[blockPos2.y][blockPos2.x - 1].isSolid)
 			{
 				sfFloatRect blockRect2 = FlRect(b[blockPos2.y][blockPos2.x - 1].pos.x, b[blockPos2.y][blockPos2.x - 1].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 				tmpRect2 = blockRect2;
 				if (sfFloatRect_intersects(&_rect, &blockRect2, NULL))
-					return sfTrue;
+				{
+					switch (b[blockPos2.y ][blockPos2.x - 1].type)
+					{
+					case T_LEFTPLATFORM: break;
+					case T_PLATFORM: break;
+					case T_GLOCK:
+						if (canOpenLock(getViewFocus(), 0)) {
+							b[blockPos2.y][blockPos2.x - 1].type = T_EMPTY;
+							b[blockPos2.y][blockPos2.x - 1].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+							b[blockPos2.y][blockPos2.x - 1].isSolid = sfFalse;
+							CreateParticles(AddVectors(b[blockPos2.y][blockPos2.x - 1].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f)), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(16.f, 16.f), 0.f, 360.f, 100.f, 10.f, 100.f, 200.f, 10.f, color(255, 255, 255, 255), color(255, 255, 255, 255), 1.f, 1.f, 1, "objects", IntRect(0, 0, 32, 32), NULL, 0.f, 0.f, 0.f);
+						}
+						return sfTrue;
+						break;
+					default:
+						return sfTrue;
+					}
+				}
 			}
 		}
 		else if (!_UpOrLeft && blockPos.x < NB_BLOCKS_X - 1 && blockPos2.x < NB_BLOCKS_X - 1)
@@ -749,14 +873,48 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 				sfFloatRect blockRect = FlRect(b[blockPos.y][blockPos.x + 1].pos.x, b[blockPos.y][blockPos.x + 1].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 				tmpRect = blockRect;
 				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
-					return sfTrue;
+				{
+					switch (b[blockPos.y][blockPos.x + 1].type)
+					{
+					case T_PLATFORM: break;
+					case T_RIGHTPLATFORM: break;
+					case T_GLOCK:
+					if (canOpenLock(getViewFocus(), 0)) {
+							b[blockPos.y][blockPos.x + 1].type = T_EMPTY;
+							b[blockPos.y][blockPos.x + 1].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+							b[blockPos.y][blockPos.x + 1].isSolid = sfFalse;
+							CreateParticles(AddVectors(b[blockPos.y][blockPos.x + 1].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f)), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(16.f, 16.f), 0.f, 360.f, 100.f, 0.f, 100.f, 200.f, 10.f, color(255, 255, 255, 255), color(255, 255, 255, 0), 1.f, 1.f, 1, "objects", IntRect(0, 0, 32, 32), NULL, 0.f, 0.f, 0.f);
+						}
+						return sfTrue;
+						break;
+					default:
+						return sfTrue;
+					}
+				}
 			}
 			if (b[blockPos2.y][blockPos2.x + 1].isSolid)
 			{
 				sfFloatRect blockRect2 = FlRect(b[blockPos2.y][blockPos2.x + 1].pos.x, b[blockPos2.y][blockPos2.x + 1].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 				tmpRect2 = blockRect2;
 				if (sfFloatRect_intersects(&_rect, &blockRect2, NULL))
-					return sfTrue;
+				{
+					switch (b[blockPos2.y][blockPos2.x + 1].type)
+					{
+					case T_PLATFORM: break;
+					case T_RIGHTPLATFORM: break;
+					case T_GLOCK:
+						if (canOpenLock(getViewFocus(), 0)) {
+							b[blockPos2.y][blockPos2.x + 1].type = T_EMPTY;
+							b[blockPos2.y][blockPos2.x + 1].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+							b[blockPos2.y][blockPos2.x + 1].isSolid = sfFalse;
+							CreateParticles(AddVectors(b[blockPos2.y][blockPos2.x + 1].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f)), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(16.f, 16.f), 0.f, 360.f, 100.f, 10.f, 100.f, 200.f, 10.f, color(255, 255, 255, 255), color(255, 255, 255, 255), 1.f, 1.f, 1, "objects", IntRect(0, 0, 32, 32), NULL, 0.f, 0.f, 0.f);
+						}
+						return sfTrue;
+						break;
+					default:
+						return sfTrue;
+					}
+				}
 			}
 		}
 	}
@@ -914,4 +1072,20 @@ sfVector2f getFinishPlayerPos(int _nb)
 	if (_nb == 0) return frogDoorPos;
 	if (_nb == 1) return astronautDoorPos;
 	return VECTOR2F_NULL;
+}
+
+sfIntRect getKeysAvailable()
+{
+	sfIntRect availableKeys = IntRect(0, 0, 0, 0);
+	for (int j = 0; j < NB_BLOCKS_Y; j++)
+	{
+		for (int i = 0; i < NB_BLOCKS_X; i++)
+		{
+			if (b[j][i].type == T_GKEY) availableKeys.left = 1;
+			if (b[j][i].type == T_BKEY) availableKeys.top = 1;
+			if (b[j][i].type == T_RKEY )availableKeys.width = 1;
+			if (b[j][i].type == T_YKEY) availableKeys.height = 1;
+		}
+	}
+	return availableKeys;
 }

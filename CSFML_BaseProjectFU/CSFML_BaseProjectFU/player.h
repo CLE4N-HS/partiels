@@ -60,3 +60,5 @@ void setPlayerMusicBlocTimer(playerType _type, float _timer);
 float getPlayerMusicBlocTimer(playerType _type);
 
 void setAnimPlayer(playerType _type, playerAnim _anim);
+
+void setPlayerSpawnPos();

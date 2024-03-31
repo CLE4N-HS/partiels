@@ -61,6 +61,9 @@ struct Particles {
 	float timerAlive;
 	float timeToDie;
 	float timerToSpawn;
+	sfColor color;
+	sfColor startColor;
+	sfColor endColor;
 
 	sfRenderStates* renderState;
 

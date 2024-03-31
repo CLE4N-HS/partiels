@@ -192,6 +192,29 @@ void updateEditor(Window* _window)
 			case T_RRIGHTMOVING: tileCursorRect = IntRect(0, 64, 32, 32); break;
 			case T_MUSICBLOC: tileCursorRect = IntRect(0, 0, 32, 32); break;
 			case T_DOOR: tileCursorRect = IntRect(0, 0, 32, 32); break;
+			case T_FROGSPAWN: tileCursorRect = IntRect(0, 0, 32, 32); break;
+			case T_ASTRONAUTSPAWN: tileCursorRect = IntRect(32, 0, 32, 32); break;
+
+			case T_GLOCK: tileCursorRect = IntRect(0, 0, 32, 32); break;
+			case T_BLOCK: tileCursorRect = IntRect(32, 0, 32, 32); break;
+			case T_RLOCK: tileCursorRect = IntRect(64, 0, 32, 32); break;
+			case T_YLOCK: tileCursorRect = IntRect(96, 0, 32, 32); break;
+
+			case T_GKEY: tileCursorRect = IntRect(0, 32, 32, 32); break;
+			case T_BKEY: tileCursorRect = IntRect(32, 32, 32, 32); break;
+			case T_RKEY: tileCursorRect = IntRect(64, 32, 32, 32); break;
+			case T_YKEY: tileCursorRect = IntRect(96, 32, 32, 32); break;
+
+			case T_GEXBLOCK: tileCursorRect = IntRect(0, 64, 32, 32); break;
+			case T_BEXBLOCK: tileCursorRect = IntRect(32, 64, 32, 32); break;
+			case T_REXBLOCK: tileCursorRect = IntRect(64, 64, 32, 32); break;
+			case T_YEXBLOCK: tileCursorRect = IntRect(96, 64, 32, 32); break;
+
+			case T_GBUTTON: tileCursorRect = IntRect(0, 96, 32, 32); break;
+			case T_BBUTTON: tileCursorRect = IntRect(32, 96, 32, 32); break;
+			case T_RBUTTON: tileCursorRect = IntRect(64, 96, 32, 32); break;
+			case T_YBUTTON: tileCursorRect = IntRect(96, 96, 32, 32); break;
+
 			default: break;
 		}
 
@@ -290,6 +313,31 @@ void updateEditor(Window* _window)
 					case T_RRIGHTMOVING: b[j][i].rect = IntRect(0, 64, 32, 32); b[j][i].isSolid = sfTrue; break;
 					case T_MUSICBLOC: b[j][i].rect = IntRect(0, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
 					case T_DOOR: b[j][i].rect = IntRect(0, 0, 32, 32); break;
+					case T_FROGSPAWN: b[j][i].rect = IntRect(0, 0, 32, 32); break;
+					case T_ASTRONAUTSPAWN: b[j][i].rect = IntRect(32, 0, 32, 32); break;
+
+					case T_GLOCK: b[j][i].rect = IntRect(0, 0, 32, 32); b[j][i].isSolid = sfTrue;
+						printf("%d\n", b[j][i].isSolid);
+						break;
+					case T_BLOCK: b[j][i].rect = IntRect(32, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
+					case T_RLOCK: b[j][i].rect = IntRect(64, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
+					case T_YLOCK: b[j][i].rect = IntRect(96, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
+
+					case T_GKEY: b[j][i].rect = IntRect(0, 32, 32, 32); break;
+					case T_BKEY: b[j][i].rect = IntRect(32, 32, 32, 32); break;
+					case T_RKEY: b[j][i].rect = IntRect(64, 32, 32, 32); break;
+					case T_YKEY: b[j][i].rect = IntRect(96, 32, 32, 32); break;
+
+					case T_GEXBLOCK: b[j][i].rect = IntRect(0, 64, 32, 32); b[j][i].isSolid = sfTrue; break;
+					case T_BEXBLOCK: b[j][i].rect = IntRect(32, 64, 32, 32); b[j][i].isSolid = sfTrue; break;
+					case T_REXBLOCK: b[j][i].rect = IntRect(64, 64, 32, 32); b[j][i].isSolid = sfTrue; break;
+					case T_YEXBLOCK: b[j][i].rect = IntRect(96, 64, 32, 32); b[j][i].isSolid = sfTrue; break;
+
+					case T_GBUTTON: b[j][i].rect = IntRect(0, 96, 32, 32); break;
+					case T_BBUTTON: b[j][i].rect = IntRect(32, 96, 32, 32); break;
+					case T_RBUTTON: b[j][i].rect = IntRect(64, 96, 32, 32); break;
+					case T_YBUTTON: b[j][i].rect = IntRect(96, 96, 32, 32); break;
+
 					default: break;
 					//}
 				//}
@@ -457,7 +505,7 @@ void updateEditor(Window* _window)
 
 			else if ((mousePosX > 0.f * 2.f && mousePosX < 32.f * 2.f) && (mousePosY > 224.f * 2.f && mousePosY < 256.f * 2.f))
 				currentTile = T_RLEFTMOVING;
-			else if ((mousePosX > 32.f * 2.f && mousePosX < 64.f * 2.f) && (mousePosY > 192.f * 2.f && mousePosY < 256.f * 2.f))
+			else if ((mousePosX > 32.f * 2.f && mousePosX < 64.f * 2.f) && (mousePosY > 224.f * 2.f && mousePosY < 256.f * 2.f))
 				currentTile = T_RMOVING;
 			else if ((mousePosX > 64.f * 2.f && mousePosX < 96.f * 2.f) && (mousePosY > 224.f * 2.f && mousePosY < 256.f * 2.f))
 				currentTile = T_RRIGHTMOVING;
@@ -465,6 +513,30 @@ void updateEditor(Window* _window)
 				currentTile = T_MUSICBLOC;
 			else if ((mousePosX > 128.f * 2.f && mousePosX < 160.f * 2.f) && (mousePosY > 224.f * 2.f && mousePosY < 256.f * 2.f))
 				currentTile = T_DOOR;
+			else if ((mousePosX > 160.f * 2.f && mousePosX < 192.f * 2.f) && (mousePosY > 224.f * 2.f && mousePosY < 256.f * 2.f))
+				currentTile = T_FROGSPAWN;
+			else if ((mousePosX > 192.f * 2.f && mousePosX < 224.f * 2.f) && (mousePosY > 224.f * 2.f && mousePosY < 256.f * 2.f))
+				currentTile = T_ASTRONAUTSPAWN;
+
+			else if (mousePosX > 576.f && mousePosX < 640.f && mousePosY > 0.f && mousePosY < 64.f) currentTile = T_GLOCK;
+			else if (mousePosX > 640.f && mousePosX < 704.f && mousePosY > 0.f && mousePosY < 64.f) currentTile = T_BLOCK;
+			else if (mousePosX > 704.f && mousePosX < 768.f && mousePosY > 0.f && mousePosY < 64.f) currentTile = T_RLOCK;
+			else if (mousePosX > 768.f && mousePosX < 832.f && mousePosY > 0.f && mousePosY < 64.f) currentTile = T_YLOCK;
+
+			else if (mousePosX > 576.f && mousePosX < 640.f && mousePosY > 64.f && mousePosY < 128.f) currentTile = T_GKEY;
+			else if (mousePosX > 640.f && mousePosX < 704.f && mousePosY > 64.f && mousePosY < 128.f) currentTile = T_BKEY;
+			else if (mousePosX > 704.f && mousePosX < 768.f && mousePosY > 64.f && mousePosY < 128.f) currentTile = T_RKEY;
+			else if (mousePosX > 768.f && mousePosX < 832.f && mousePosY > 64.f && mousePosY < 128.f) currentTile = T_YKEY;
+
+			else if (mousePosX > 576.f && mousePosX < 640.f && mousePosY > 128.f && mousePosY < 192.f) currentTile = T_GEXBLOCK;
+			else if (mousePosX > 640.f && mousePosX < 704.f && mousePosY > 128.f && mousePosY < 192.f) currentTile = T_BEXBLOCK;
+			else if (mousePosX > 704.f && mousePosX < 768.f && mousePosY > 128.f && mousePosY < 192.f) currentTile = T_REXBLOCK;
+			else if (mousePosX > 768.f && mousePosX < 832.f && mousePosY > 128.f && mousePosY < 192.f) currentTile = T_YEXBLOCK;
+
+			else if (mousePosX > 576.f && mousePosX < 640.f && mousePosY > 192.f && mousePosY < 256.f) currentTile = T_GBUTTON;
+			else if (mousePosX > 640.f && mousePosX < 704.f && mousePosY > 192.f && mousePosY < 256.f) currentTile = T_BBUTTON;
+			else if (mousePosX > 704.f && mousePosX < 768.f && mousePosY > 192.f && mousePosY < 256.f) currentTile = T_RBUTTON;
+			else if (mousePosX > 768.f && mousePosX < 832.f && mousePosY > 192.f && mousePosY < 256.f) currentTile = T_YBUTTON;
 
 
 			else
@@ -472,6 +544,7 @@ void updateEditor(Window* _window)
 		}
 	}
 
+	// to remove improve
 	if (sfKeyboard_isKeyPressed(sfKeyEscape) && timer > 0.2f)
 	{
 		isEditor = sfFalse;
@@ -561,6 +634,8 @@ void displayEditor(Window* _window)
 	else if (currentTile == T_RLEFTMOVING || currentTile == T_RMOVING || currentTile == T_RRIGHTMOVING) sfSprite_setTexture(tileCursor, GetTexture("rightMoving"), sfFalse);
 	else if (currentTile == T_MUSICBLOC) sfSprite_setTexture(tileCursor, GetTexture("musicBloc"), sfFalse);
 	else if (currentTile == T_DOOR) sfSprite_setTexture(tileCursor, GetTexture("doors"), sfFalse);
+	else if (currentTile == T_FROGSPAWN || currentTile == T_ASTRONAUTSPAWN) sfSprite_setTexture(tileCursor, GetTexture("spawn"), sfFalse);
+	else if (currentTile >= T_GLOCK && currentTile <= T_YPRESSEDBUTTON) sfSprite_setTexture(tileCursor, GetTexture("objects"), sfFalse);
 	else sfSprite_setTexture(tileCursor, GetTexture("castleTiles"), sfFalse);
 
 	sfSprite_setTextureRect(tileCursor, tileCursorRect);
@@ -576,6 +651,16 @@ void displayEditor(Window* _window)
 	if (isEditorHUD)
 	{
 		sfRenderTexture_drawRectangleShape(_window->renderTexture, rectCursor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("castleTiles"), sfTrue);
+		sfSprite_setPosition(hudEditor, vector2f(0.f, 0.f));
+		sfSprite_setScale(hudEditor, vector2f(2.f, 2.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("objects"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(0, 0, 128, 128));
+		sfSprite_setPosition(hudEditor, vector2f(576.f, 0.f));
+		sfSprite_setScale(hudEditor, vector2f(2.f, 2.f));
 		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
 	}
 	sfRenderTexture_setView(_window->renderTexture, mainView->view);

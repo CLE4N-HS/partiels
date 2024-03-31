@@ -47,18 +47,17 @@ void initPlayer()
 	viewTimer = LERP_VIEW_TIMER;
 	lastViewPos = VECTOR2F_NULL;
 
-
 	for (int i = 0; i < 2; i++)
 	{
 		switch (i)
 		{
 		case 0:
 			p[i].type = FROG;
-			p[i].pos = vector2f(300.f, 520.f);
+			p[i].pos = vector2f(960.f, 540.f);
 			break;
 		case 1:
 			p[i].type = ASTRONAUT;
-			p[i].pos = vector2f(492.f, 520.f);
+			p[i].pos = vector2f(960.f, 540.f);
 			break;
 		default:
 			break;
@@ -80,6 +79,8 @@ void initPlayer()
 		p[i].sprite = sfSprite_create();
 		sfSprite_setOrigin(p[i].sprite, vector2f(16.f, 16.f));
 	}
+
+	setPlayerSpawnPos();
 }
 
 void updatePlayer(Window* _window)
@@ -453,4 +454,18 @@ float getPlayerMusicBlocTimer(playerType _type)
 void setAnimPlayer(playerType _type, playerAnim _anim)
 {
 	p[_type].anim = _anim;
+}
+
+void setPlayerSpawnPos()
+{
+	for (int j = 0; j < NB_BLOCKS_Y; j++)
+	{
+		for (int i = 0; i < NB_BLOCKS_X; i++)
+		{
+			if (b[j][i].type == T_FROGSPAWN)
+				p[FROG].pos = AddVectors(b[j][i].pos, vector2f(BLOCK_SCALE * BLOCK_SIZE / 2.f, BLOCK_SCALE * BLOCK_SIZE / 2.f));
+			else if (b[j][i].type == T_ASTRONAUTSPAWN)
+				p[ASTRONAUT].pos = AddVectors(b[j][i].pos, vector2f(BLOCK_SCALE * BLOCK_SIZE / 2.f, BLOCK_SCALE * BLOCK_SIZE / 2.f));
+		}
+	}
 }

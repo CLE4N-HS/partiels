@@ -25,6 +25,8 @@ sfTexture* leftMovingTexture;
 sfTexture* rightMovingTexture;
 sfTexture* musicBlocTexture;
 sfTexture* doorsTexture;
+sfTexture* spawnTexture;
+sfTexture* objectsTexture;
 
 sfTexture* xboxATexture;
 
@@ -66,6 +68,8 @@ void initMap()
 	rightMovingTexture = GetTexture("rightMoving");
 	musicBlocTexture = GetTexture("musicBloc");
 	doorsTexture = GetTexture("doors");
+	spawnTexture = GetTexture("spawn");
+	objectsTexture = GetTexture("objects");
 	
 	xboxATexture = GetTexture("xboxA");
 
@@ -276,6 +280,7 @@ void updateMap(Window* _window)
 	if (key > 0 && changeMapTimer > 0.5f) {
 		changeMapTimer = 0.f;
 		loadMap(key);
+		setPlayerSpawnPos();
 		nbMap = key;
 	}
 }
@@ -289,9 +294,9 @@ void displayMap(Window* _window)
 			sfSprite_setPosition(mapSprite, b[j][i].pos);
 			sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
 
-			switch (b[j][i].type)
-			{
-			case T_SLINGSHOT:
+			blockType tmpType = b[j][i].type;
+
+			if (tmpType == T_SLINGSHOT) {
 				if (!slingshot.isInSlingshot) {
 					sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
 					sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
@@ -301,39 +306,73 @@ void displayMap(Window* _window)
 				}
 				sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
 				sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
-				break;
-			case T_LLEFTMOVING:
-				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
-				break;
-			case T_LMOVING:
-				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
-				break;
-			case T_LRIGHTMOVING:
-				sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
-				break;
-			case T_RLEFTMOVING:
-				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
-				break;
-			case T_RMOVING:
-				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
-				break;
-			case T_RRIGHTMOVING:
-				sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
-				break;
-			case T_MUSICBLOC:
+			}
+			else if (tmpType >= T_LLEFTMOVING && tmpType <= T_LRIGHTMOVING) sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
+			else if (tmpType >= T_RLEFTMOVING && tmpType <= T_RRIGHTMOVING) sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
+			else if (tmpType == T_MUSICBLOC) {
 				if (b[j][i].timer > 0.f) sfSprite_setPosition(mapSprite, AddVectors(b[j][i].pos, vector2f(0.f, b[j][i].timer * BLOCK_SIZE * 2)));
 				sfSprite_setTexture(mapSprite, musicBlocTexture, sfFalse);
-				break;
-			case T_DOOR:
-				sfSprite_setTexture(mapSprite, doorsTexture, sfFalse);
-				break;
-			default:
-				sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
-				sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
-				break;
 			}
+			else if (tmpType == T_DOOR) sfSprite_setTexture(mapSprite, doorsTexture, sfFalse);
+			else if (tmpType == T_FROGSPAWN || tmpType == T_ASTRONAUTSPAWN) sfSprite_setTexture(mapSprite, spawnTexture, sfFalse);
+			else if (tmpType >= T_GLOCK && tmpType <= T_YPRESSEDBUTTON) sfSprite_setTexture(mapSprite, objectsTexture, sfFalse);
+			else sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
+
 			sfSprite_setTextureRect(mapSprite, b[j][i].rect);
 			sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+
+
+			//switch (b[j][i].type)
+			//{
+			//case T_SLINGSHOT:
+			//	if (!slingshot.isInSlingshot) {
+			//		sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
+			//		sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
+			//		sfSprite_setTextureRect(mapSprite, IntRect(66, 0, 44, 209));
+			//		sfSprite_setPosition(mapSprite, b[j][i].pos);
+			//		sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
+			//	}
+			//	sfSprite_setTexture(mapSprite, slingshotTexture, sfFalse);
+			//	sfSprite_setScale(mapSprite, vector2f(2.f, 1.f));
+			//	break;
+			//case T_LLEFTMOVING:
+			//	sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
+			//	break;
+			//case T_LMOVING:
+			//	sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
+			//	break;
+			//case T_LRIGHTMOVING:
+			//	sfSprite_setTexture(mapSprite, leftMovingTexture, sfFalse);
+			//	break;
+			//case T_RLEFTMOVING:
+			//	sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
+			//	break;
+			//case T_RMOVING:
+			//	sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
+			//	break;
+			//case T_RRIGHTMOVING:
+			//	sfSprite_setTexture(mapSprite, rightMovingTexture, sfFalse);
+			//	break;
+			//case T_MUSICBLOC:
+			//	if (b[j][i].timer > 0.f) sfSprite_setPosition(mapSprite, AddVectors(b[j][i].pos, vector2f(0.f, b[j][i].timer * BLOCK_SIZE * 2)));
+			//	sfSprite_setTexture(mapSprite, musicBlocTexture, sfFalse);
+			//	break;
+			//case T_DOOR:
+			//	sfSprite_setTexture(mapSprite, doorsTexture, sfFalse);
+			//	break;
+			//case T_FROGSPAWN:
+			//	sfSprite_setTexture(mapSprite, spawnTexture, sfFalse);
+			//	break;
+			//case T_ASTRONAUTSPAWN:
+			//	sfSprite_setTexture(mapSprite, spawnTexture, sfFalse);
+			//	break;
+			//default:
+			//	sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
+			//	sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+			//	break;
+			//}
+			//sfSprite_setTextureRect(mapSprite, b[j][i].rect);
+			//sfRenderTexture_drawSprite(_window->renderTexture, mapSprite, NULL);
 		}
 	}
 

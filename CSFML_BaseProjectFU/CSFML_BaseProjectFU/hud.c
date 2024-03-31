@@ -2,38 +2,42 @@
 #include "textureManager.h"
 #include "player.h"
 #include "viewManager.h"
+#include "map.h"
 
 sfSprite* hudSprite;
 
 typedef struct {
 	sfVector2f pos;
 	sfIntRect rect;
-	sfBool hasGreenKey;
-	sfBool hasBlueKey;
-	sfBool hasRedKey;
-	sfBool hasYellowKey;
 }PlayersHud;
 PlayersHud hud[2][4];
 
 int nbMaxKeys;
+sfIntRect availableKeys;
 
 void initHud()
 {
 	hudSprite = sfSprite_create();
 	sfSprite_setTexture(hudSprite, GetTexture("keys"), sfFalse);
 
+	availableKeys = getKeysAvailable();
+
 	for (int j = 0; j < 2; j++)
 	{
 		for (int i = 0; i < 4; i++)
 		{
 			hud[j][i].pos = vector2f(22.f + 44.f * i, 22.f);
-			hud[j][i].rect = IntRect(44 * i, 0, 44, 40);
-			hud[j][i].hasGreenKey = sfFalse;
-			hud[j][i].hasBlueKey = sfFalse;
-			hud[j][i].hasRedKey = sfFalse;
-			hud[j][i].hasYellowKey = sfFalse;
+			switch (i)
+			{
+			case 0:
+				hud[j][i].rect = IntRect(44 * i, 0, 44, 40);
+
+			default:
+				break;
+			}
 		}
 	}
+
 }
 
 void displayHud(Window* _window)

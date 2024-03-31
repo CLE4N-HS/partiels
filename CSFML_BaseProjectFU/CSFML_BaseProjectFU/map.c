@@ -954,3 +954,35 @@ sfVector2f getFinishPlayerPos(int _nb)
 	if (_nb == 1) return astronautDoorPos;
 	return VECTOR2F_NULL;
 }
+
+sfIntRect getKeysAvailable()
+{
+	sfIntRect availableKeys = IntRect(0, 0, 0, 0);
+	sfBool greenKey = sfFalse;
+	sfBool blueKey = sfFalse;
+	sfBool redKey = sfFalse;
+	sfBool yellowKey = sfFalse;
+	for (int j = 0; j < NB_BLOCKS_Y; j++)
+	{
+		for (int i = 0; i < NB_BLOCKS_X; i++)
+		{
+			if (b[j][i].type == T_GKEY && !greenKey) {
+				availableKeys.left++;
+				greenKey = sfTrue;
+			}
+			if (b[j][i].type == T_BKEY && !blueKey) {
+				availableKeys.top++;
+				blueKey = sfTrue;
+			}
+			if (b[j][i].type == T_RKEY && !redKey) {
+				availableKeys.width++;
+				redKey = sfTrue;
+			}
+			if (b[j][i].type == T_YKEY && !yellowKey) {
+				availableKeys.height++;
+				yellowKey = sfTrue;
+			}
+		}
+	}
+	return availableKeys;
+}

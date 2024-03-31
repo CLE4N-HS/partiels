@@ -23,17 +23,15 @@ void initParticlesSystem()
 void AddParticles(sfVector2f _pos, sfVector2f _startScale, sfVector2f _endScale, sfVector2f _origin, float _angle, float _rotationSpeed, float _angularDrag, float _force, float _endDrag, sfColor _startColor, sfColor _endColor, float _timeToDie, TypeParticles _type, char* _name, sfIntRect _rect, sfRenderStates* _renderState, float _timeToSpawn, float psTimeToDie)
 {
 	Particles tmp;
+	tmp.type = _type;
 	tmp.pos = _pos;
 	tmp.startPos = _pos;
 	tmp.scale = _startScale;
 	tmp.startScale = tmp.scale;
 	tmp.endScale = _endScale;
 	tmp.origin = _origin;
-	tmp.circle.radius = 1.f;
-	tmp.circle.startRadius = tmp.circle.radius;
-	tmp.circle.endRadius = 1.f;
+
 	//tmp.origin = vector2f(tmp.circle.radius, tmp.circle.radius);
-	tmp.sprite.rect;
 	tmp.angle = _angle;
 	tmp.startAngle = tmp.angle;
 	tmp.angleRotation = tmp.angle;
@@ -44,21 +42,37 @@ void AddParticles(sfVector2f _pos, sfVector2f _startScale, sfVector2f _endScale,
 	tmp.endDrag = _endDrag;
 	tmp.force = _force;
 
-	tmp.circle.color = _startColor;
-	tmp.circle.startColor = tmp.circle.color;
-	tmp.circle.endColor = _endColor;
+	if (tmp.type == CIRCLE_PARTICLES)
+	{
+		tmp.circle.radius = 1.f;
+		tmp.circle.startRadius = tmp.circle.radius;
+		tmp.circle.endRadius = 1.f;
+		tmp.circle.color = _startColor;
+		tmp.circle.startColor = tmp.circle.color;
+		tmp.circle.endColor = _endColor;
+	}
+	else if (tmp.type == SPRITE_PARTICLES)
+	{
+		tmp.sprite.rect = _rect;
+
+	}
+
+	tmp.color = _startColor;
+	tmp.startColor = tmp.color;
+	tmp.endColor = _endColor;
+
+
 	tmp.timerAlive = 0.f;
 	tmp.timeToDie = _timeToDie;
 	tmp.timerToSpawn = _timeToSpawn;
-	tmp.type = _type;
 	strcpy(tmp.name, _name);
 	tmp.renderState = _renderState;
 	
 	tmp.psTimeToDie = psTimeToDie;
 
 	tmp.mass = 1.f;
-
 	list->push_back(&list, &tmp);
+
 }
 
 
@@ -102,7 +116,8 @@ void updateParticlesSystem(Window* _window)
 		GETDATA_PARTICLES->velocity = MultiplyVector(normVecAngle, GETDATA_PARTICLES->force);
 		GETDATA_PARTICLES->pos = AddVectors(GETDATA_PARTICLES->pos, MultiplyVector(GETDATA_PARTICLES->velocity, dt / (1.f + GETDATA_PARTICLES->drag)));
 
-		GETDATA_PARTICLES->circle.color = color_lerp(GETDATA_PARTICLES->circle.startColor, GETDATA_PARTICLES->circle.endColor, PARTICLES_LIFETIME);
+
+		GETDATA_PARTICLES->color = color_lerp(GETDATA_PARTICLES->startColor, GETDATA_PARTICLES->endColor, PARTICLES_LIFETIME);
 
 		GETDATA_PARTICLES->angleRotation += GETDATA_PARTICLES->rotationSpeed * dt / (1.f + GETDATA_PARTICLES->angularDrag);
 
@@ -144,9 +159,10 @@ void displayParticlesSystem(Window* _window)
 		{
 			sfSprite_setPosition(spr, GETDATA_PARTICLES->pos);
 			sfSprite_setOrigin(spr, GETDATA_PARTICLES->origin);
-			//sfSprite_setTextureRect(spr) we might need a texture rect
 			sfSprite_setScale(spr, GETDATA_PARTICLES->scale);
-			sfSprite_setTexture(spr, GetTexture(GETDATA_PARTICLES->name), sfTrue);
+			sfSprite_setTexture(spr, GetTexture(GETDATA_PARTICLES->name), sfFalse);
+			sfSprite_setTextureRect(spr, GETDATA_PARTICLES->sprite.rect);
+			sfSprite_setColor(spr, GETDATA_PARTICLES->color);
 			sfSprite_setRotation(spr, GETDATA_PARTICLES->angleRotation);
 			sfRenderTexture_drawSprite(_window->renderTexture, spr, GETDATA_PARTICLES->renderState);
 		}

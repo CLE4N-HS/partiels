@@ -45,6 +45,8 @@ typedef struct {
 }Slingshot;
 Slingshot slingshot;
 
+sfIntRect pressedButtons;
+
 
 float changeMapTimer;
 
@@ -95,6 +97,8 @@ void initMap()
 		slingshot.vertex[i].position = VECTOR2F_NULL;
 	}
 	slingshot.canLaunch = sfFalse;
+
+	pressedButtons = IntRect(0, 0, 0, 0);
 
 	sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
 }
@@ -246,6 +250,7 @@ void updateMap(Window* _window)
 					b[j][i].rect = IntRect(0, 0, 32, 32);
 				break;
 			case T_GKEY:
+				keyBounds(&blockBounds);
 				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(FROG), NULL)) {
 					collectKey(FROG, 0);
 					b[j][i].type = T_EMPTY;
@@ -258,6 +263,7 @@ void updateMap(Window* _window)
 				}
 				break;
 			case T_BKEY:
+				keyBounds(&blockBounds);
 				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(FROG), NULL)) {
 					collectKey(FROG, 1);
 					b[j][i].type = T_EMPTY;
@@ -270,6 +276,7 @@ void updateMap(Window* _window)
 				}
 				break;
 			case T_RKEY:
+				keyBounds(&blockBounds);
 				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(FROG), NULL)) {
 					collectKey(FROG, 2);
 					b[j][i].type = T_EMPTY;
@@ -282,6 +289,7 @@ void updateMap(Window* _window)
 				}
 				break;
 			case T_YKEY:
+				keyBounds(&blockBounds);
 				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(FROG), NULL)) {
 					collectKey(FROG, 3);
 					b[j][i].type = T_EMPTY;
@@ -291,6 +299,106 @@ void updateMap(Window* _window)
 					collectKey(ASTRONAUT, 3);
 					b[j][i].type = T_EMPTY;
 					b[j][i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				}
+				break;
+			case T_GBUTTON:
+				buttonBounds(&blockBounds);
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(_viewFocus), NULL)) {
+					pressedButtons.left = 1;
+					b[j][i].type = T_GPRESSEDBUTTON;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect.top += 64;
+				}
+				break;
+			case T_BBUTTON:
+				buttonBounds(&blockBounds);
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(_viewFocus), NULL)) {
+					pressedButtons.top = 1;
+					b[j][i].type = T_BPRESSEDBUTTON;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect.top += 64;
+				}
+				break;
+			case T_RBUTTON:
+				buttonBounds(&blockBounds);
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(_viewFocus), NULL)) {
+					pressedButtons.width = 1;
+					b[j][i].type = T_RPRESSEDBUTTON;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect.top += 64;
+				}
+				break;
+			case T_YBUTTON:
+				buttonBounds(&blockBounds);
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(_viewFocus), NULL)) {
+					pressedButtons.height = 1;
+					b[j][i].type = T_YPRESSEDBUTTON;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect.top += 64;
+				}
+				break;
+			case T_GREVERSEDBUTTON:
+				reversedButtonBounds(&blockBounds);
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(_viewFocus), NULL)) {
+					pressedButtons.left = 1;
+					b[j][i].type = T_GREVERSEDPRESSEDBUTTON;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect.top += 64;
+				}
+				break;
+			case T_BREVERSEDBUTTON:
+				reversedButtonBounds(&blockBounds);
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(_viewFocus), NULL)) {
+					pressedButtons.top = 1;
+					b[j][i].type = T_BREVERSEDPRESSEDBUTTON;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect.top += 64;
+				}
+				break;
+			case T_RREVERSEDBUTTON:
+				reversedButtonBounds(&blockBounds);
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(_viewFocus), NULL)) {
+					pressedButtons.width = 1;
+					b[j][i].type = T_RREVERSEDPRESSEDBUTTON;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect.top += 64;
+				}
+				break;
+			case T_YREVERSEDBUTTON:
+				reversedButtonBounds(&blockBounds);
+				if (sfFloatRect_intersects(&blockBounds, pGetPlayerBounds(_viewFocus), NULL)) {
+					pressedButtons.height = 1;
+					b[j][i].type = T_YREVERSEDPRESSEDBUTTON;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect.top += 64;
+				}
+				break;
+			case T_GEXBLOCK:
+				if (pressedButtons.left == 1) {
+					b[j][i].type = T_GOPENEDEXBLOCK;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect = IntRect(0, 224, 32, 32);
+				}
+				break;
+			case T_BEXBLOCK:
+				if (pressedButtons.top == 1) {
+					b[j][i].type = T_BOPENEDEXBLOCK;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect = IntRect(32, 224, 32, 32);
+				}
+				break;
+			case T_REXBLOCK:
+				if (pressedButtons.width== 1) {
+					b[j][i].type = T_ROPENEDEXBLOCK;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect = IntRect(64, 224, 32, 32);
+				}
+				break;
+			case T_YEXBLOCK:
+				if (pressedButtons.height == 1) {
+					b[j][i].type = T_GOPENEDEXBLOCK;
+					b[j][i].isSolid = sfFalse;
+					b[j][i].rect = IntRect(96, 224, 32, 32);
 				}
 				break;
 			default:
@@ -307,6 +415,7 @@ void updateMap(Window* _window)
 		setFinishViewPos(1, astronautDoorPos);
 		setAnimPlayer(FROG, THROW);
 		setAnimPlayer(ASTRONAUT, THROW);
+		pressedButtons = IntRect(0, 0, 0, 0);
 	}
 
 	// reset xboxA button
@@ -344,6 +453,7 @@ void displayMap(Window* _window)
 		{
 			sfSprite_setPosition(mapSprite, b[j][i].pos);
 			sfSprite_setScale(mapSprite, vector2f(BLOCK_SCALE, BLOCK_SCALE));
+			sfSprite_setColor(mapSprite, color(255, 255, 255, 255));
 
 			blockType tmpType = b[j][i].type;
 
@@ -366,7 +476,7 @@ void displayMap(Window* _window)
 			}
 			else if (tmpType == T_DOOR) sfSprite_setTexture(mapSprite, doorsTexture, sfFalse);
 			else if (tmpType == T_FROGSPAWN || tmpType == T_ASTRONAUTSPAWN) sfSprite_setTexture(mapSprite, spawnTexture, sfFalse);
-			else if (tmpType >= T_GLOCK && tmpType <= T_YPRESSEDBUTTON) sfSprite_setTexture(mapSprite, objectsTexture, sfFalse);
+			else if (tmpType >= T_GLOCK && tmpType <= T_YOPENEDEXBLOCK) sfSprite_setTexture(mapSprite, objectsTexture, sfFalse);
 			else sfSprite_setTexture(mapSprite, castleTexture, sfFalse);
 
 			sfSprite_setTextureRect(mapSprite, b[j][i].rect);
@@ -828,14 +938,29 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 					case T_LEFTPLATFORM: break;
 					case T_PLATFORM: break;
 					case T_GLOCK:
-						if (canOpenLock(getViewFocus(), 0)) {
-							b[blockPos.y][blockPos.x - 1].type = T_EMPTY;
-							b[blockPos.y][blockPos.x - 1].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-							b[blockPos.y][blockPos.x - 1].isSolid = sfFalse;
-							CreateParticles(AddVectors(b[blockPos.y][blockPos.x - 1].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f)), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(16.f, 16.f), 0.f, 360.f, 100.f, 10.f, 100.f, 200.f, 10.f, color(255, 255, 255, 255), color(255, 255, 255, 255), 1.f, 1.f, 1, "objects", IntRect(0, 0, 32, 32), NULL, 0.f, 0.f, 0.f);
-						}
+						if (canOpenLock(getViewFocus(), 0))
+							delock(blockPos.y, blockPos.x - 1);
 						return sfTrue;
-						break;
+					case T_BLOCK:
+						if (canOpenLock(getViewFocus(), 1))
+							delock(blockPos.y, blockPos.x - 1);
+						return sfTrue;
+					case T_RLOCK:
+						if (canOpenLock(getViewFocus(), 2))
+							delock(blockPos.y, blockPos.x - 1);
+						return sfTrue;
+					case T_YLOCK:
+						if (canOpenLock(getViewFocus(), 3))
+							delock(blockPos.y, blockPos.x - 1);
+						return sfTrue;
+					case T_GEXBLOCK:
+						if (pressedButtons.left == 1) break;
+					case T_BEXBLOCK:
+						if (pressedButtons.top == 1) break;
+					case T_REXBLOCK:
+						if (pressedButtons.width == 1) break;
+					case T_YEXBLOCK:
+						if (pressedButtons.height == 1) break;
 					default:
 						return sfTrue;
 					}
@@ -852,14 +977,21 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 					case T_LEFTPLATFORM: break;
 					case T_PLATFORM: break;
 					case T_GLOCK:
-						if (canOpenLock(getViewFocus(), 0)) {
-							b[blockPos2.y][blockPos2.x - 1].type = T_EMPTY;
-							b[blockPos2.y][blockPos2.x - 1].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-							b[blockPos2.y][blockPos2.x - 1].isSolid = sfFalse;
-							CreateParticles(AddVectors(b[blockPos2.y][blockPos2.x - 1].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f)), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(16.f, 16.f), 0.f, 360.f, 100.f, 10.f, 100.f, 200.f, 10.f, color(255, 255, 255, 255), color(255, 255, 255, 255), 1.f, 1.f, 1, "objects", IntRect(0, 0, 32, 32), NULL, 0.f, 0.f, 0.f);
-						}
+						if (canOpenLock(getViewFocus(), 0))
+							delock(blockPos2.y, blockPos2.x - 1);
 						return sfTrue;
-						break;
+					case T_BLOCK:
+						if (canOpenLock(getViewFocus(), 1))
+							delock(blockPos2.y, blockPos2.x - 1);
+						return sfTrue;
+					case T_RLOCK:
+						if (canOpenLock(getViewFocus(), 2))
+							delock(blockPos2.y, blockPos2.x - 1);
+						return sfTrue;
+					case T_YLOCK:
+						if (canOpenLock(getViewFocus(), 3))
+							delock(blockPos2.y, blockPos2.x - 1);
+						return sfTrue;
 					default:
 						return sfTrue;
 					}
@@ -879,14 +1011,21 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 					case T_PLATFORM: break;
 					case T_RIGHTPLATFORM: break;
 					case T_GLOCK:
-					if (canOpenLock(getViewFocus(), 0)) {
-							b[blockPos.y][blockPos.x + 1].type = T_EMPTY;
-							b[blockPos.y][blockPos.x + 1].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-							b[blockPos.y][blockPos.x + 1].isSolid = sfFalse;
-							CreateParticles(AddVectors(b[blockPos.y][blockPos.x + 1].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f)), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(16.f, 16.f), 0.f, 360.f, 100.f, 0.f, 100.f, 200.f, 10.f, color(255, 255, 255, 255), color(255, 255, 255, 0), 1.f, 1.f, 1, "objects", IntRect(0, 0, 32, 32), NULL, 0.f, 0.f, 0.f);
-						}
+						if (canOpenLock(getViewFocus(), 0))
+							delock(blockPos.y, blockPos.x + 1);
 						return sfTrue;
-						break;
+					case T_BLOCK:
+						if (canOpenLock(getViewFocus(), 1))
+							delock(blockPos.y, blockPos.x + 1);
+						return sfTrue;
+					case T_RLOCK:
+						if (canOpenLock(getViewFocus(), 2))
+							delock(blockPos.y, blockPos.x + 1);
+						return sfTrue;
+					case T_YLOCK:
+						if (canOpenLock(getViewFocus(), 3))
+							delock(blockPos.y, blockPos.x + 1);
+						return sfTrue;
 					default:
 						return sfTrue;
 					}
@@ -903,14 +1042,21 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 					case T_PLATFORM: break;
 					case T_RIGHTPLATFORM: break;
 					case T_GLOCK:
-						if (canOpenLock(getViewFocus(), 0)) {
-							b[blockPos2.y][blockPos2.x + 1].type = T_EMPTY;
-							b[blockPos2.y][blockPos2.x + 1].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-							b[blockPos2.y][blockPos2.x + 1].isSolid = sfFalse;
-							CreateParticles(AddVectors(b[blockPos2.y][blockPos2.x + 1].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f)), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(16.f, 16.f), 0.f, 360.f, 100.f, 10.f, 100.f, 200.f, 10.f, color(255, 255, 255, 255), color(255, 255, 255, 255), 1.f, 1.f, 1, "objects", IntRect(0, 0, 32, 32), NULL, 0.f, 0.f, 0.f);
-						}
+						if (canOpenLock(getViewFocus(), 0))
+							delock(blockPos2.y, blockPos2.x + 1);
 						return sfTrue;
-						break;
+					case T_BLOCK:
+						if (canOpenLock(getViewFocus(), 1))
+							delock(blockPos2.y, blockPos2.x + 1);
+						return sfTrue;
+					case T_RLOCK:
+						if (canOpenLock(getViewFocus(), 2))
+							delock(blockPos2.y, blockPos2.x + 1);
+						return sfTrue;
+					case T_YLOCK:
+						if (canOpenLock(getViewFocus(), 3))
+							delock(blockPos2.y, blockPos2.x + 1);
+						return sfTrue;
 					default:
 						return sfTrue;
 					}
@@ -936,6 +1082,22 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 					case T_LEFTPLATFORM: break;
 					case T_PLATFORM: break;
 					case T_RIGHTPLATFORM: break;
+					case T_GLOCK:
+						if (canOpenLock(getViewFocus(), 0))
+							delock(blockPos.y - 1, blockPos.x);
+						return sfTrue;
+					case T_BLOCK:
+						if (canOpenLock(getViewFocus(), 1))
+							delock(blockPos.y - 1, blockPos.x);
+						return sfTrue;
+					case T_RLOCK:
+						if (canOpenLock(getViewFocus(), 2))
+							delock(blockPos.y - 1, blockPos.x);
+						return sfTrue;
+					case T_YLOCK:
+						if (canOpenLock(getViewFocus(), 3))
+							delock(blockPos.y - 1, blockPos.x);
+						return sfTrue;
 					default:
 						return sfTrue;
 					}
@@ -955,6 +1117,22 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 					case T_LEFTPLATFORM: break;
 					case T_PLATFORM: break;
 					case T_RIGHTPLATFORM: break;
+					case T_GLOCK:
+						if (canOpenLock(getViewFocus(), 0))
+							delock(blockPos2.y - 1, blockPos2.x);
+						return sfTrue;
+					case T_BLOCK:
+						if (canOpenLock(getViewFocus(), 1))
+							delock(blockPos2.y - 1, blockPos2.x);
+						return sfTrue;
+					case T_RLOCK:
+						if (canOpenLock(getViewFocus(), 2))
+							delock(blockPos2.y - 1, blockPos2.x);
+						return sfTrue;
+					case T_YLOCK:
+						if (canOpenLock(getViewFocus(), 3))
+							delock(blockPos2.y - 1, blockPos2.x);
+						return sfTrue;
 					default:
 						return sfTrue;
 					}
@@ -968,14 +1146,58 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 				sfFloatRect blockRect = FlRect(b[blockPos.y + 1][blockPos.x].pos.x, b[blockPos.y + 1][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 				tmpRect = blockRect;
 				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
-					return sfTrue;
+				{
+					switch (b[blockPos.y + 1][blockPos.x].type)
+					{
+					case T_GLOCK:
+						if (canOpenLock(getViewFocus(), 0))
+							delock(blockPos.y + 1, blockPos.x);
+						return sfTrue;
+					case T_BLOCK:
+						if (canOpenLock(getViewFocus(), 1))
+							delock(blockPos.y + 1, blockPos.x);
+						return sfTrue;
+					case T_RLOCK:
+						if (canOpenLock(getViewFocus(), 2))
+							delock(blockPos.y + 1, blockPos.x);
+						return sfTrue;
+					case T_YLOCK:
+						if (canOpenLock(getViewFocus(), 3))
+							delock(blockPos.y + 1, blockPos.x);
+						return sfTrue;
+					default:
+						return sfTrue;
+					}
+				}
 			}
 			if (b[blockPos2.y + 1][blockPos2.x].isSolid)
 			{
 				sfFloatRect blockRect2 = FlRect(b[blockPos2.y + 1][blockPos2.x].pos.x, b[blockPos2.y + 1][blockPos2.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 				tmpRect = blockRect2;
 				if (sfFloatRect_intersects(&_rect, &blockRect2, NULL))
-					return sfTrue;
+				{
+					switch (b[blockPos2.y + 1][blockPos2.x].type)
+					{
+					case T_GLOCK:
+						if (canOpenLock(getViewFocus(), 0))
+							delock(blockPos2.y + 1, blockPos2.x);
+						return sfTrue;
+					case T_BLOCK:
+						if (canOpenLock(getViewFocus(), 1))
+							delock(blockPos2.y + 1, blockPos2.x);
+						return sfTrue;
+					case T_RLOCK:
+						if (canOpenLock(getViewFocus(), 2))
+							delock(blockPos2.y + 1, blockPos2.x);
+						return sfTrue;
+					case T_YLOCK:
+						if (canOpenLock(getViewFocus(), 3))
+							delock(blockPos2.y + 1, blockPos2.x);
+						return sfTrue;
+					default:
+						return sfTrue;
+					}
+				}
 			}
 		}
 	}
@@ -1088,4 +1310,31 @@ sfIntRect getKeysAvailable()
 		}
 	}
 	return availableKeys;
+}
+
+void delock(int _j, int _i)
+{
+	CreateParticles(AddVectors(b[_j][_i].pos, vector2f(BLOCK_SIZE * BLOCK_SCALE / 2.f, BLOCK_SIZE * BLOCK_SCALE / 2.f)), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(BLOCK_SCALE, BLOCK_SCALE), vector2f(16.f, 16.f), 0.f, 360.f, 100.f, 3.f, 100.f, 200.f, 10.f, color(255, 255, 255, 255), color(255, 255, 255, 0), 1.f, 1.f, 1, "objects", b[_j][_i].rect, NULL, 0.f, 0.f, 0.f);
+	b[_j][_i].type = T_EMPTY;
+	b[_j][_i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+	b[_j][_i].isSolid = sfFalse;
+}
+
+void keyBounds(sfFloatRect* _bounds)
+{
+	_bounds->left += 3 * BLOCK_SCALE;
+	_bounds->top += 8 * BLOCK_SCALE;
+	_bounds->width -= 6 * BLOCK_SCALE;
+	_bounds->height -= 16 * BLOCK_SCALE;
+}
+
+void buttonBounds(sfFloatRect* _bounds)
+{
+	_bounds->top += 11 * BLOCK_SCALE;
+	_bounds->height -= 11 * BLOCK_SCALE;
+}
+
+void reversedButtonBounds(sfFloatRect* _bounds)
+{
+	_bounds->height -= 11 * BLOCK_SCALE;
 }

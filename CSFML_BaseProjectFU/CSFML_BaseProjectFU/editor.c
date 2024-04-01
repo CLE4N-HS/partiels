@@ -316,9 +316,7 @@ void updateEditor(Window* _window)
 					case T_FROGSPAWN: b[j][i].rect = IntRect(0, 0, 32, 32); break;
 					case T_ASTRONAUTSPAWN: b[j][i].rect = IntRect(32, 0, 32, 32); break;
 
-					case T_GLOCK: b[j][i].rect = IntRect(0, 0, 32, 32); b[j][i].isSolid = sfTrue;
-						printf("%d\n", b[j][i].isSolid);
-						break;
+					case T_GLOCK: b[j][i].rect = IntRect(0, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
 					case T_BLOCK: b[j][i].rect = IntRect(32, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
 					case T_RLOCK: b[j][i].rect = IntRect(64, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
 					case T_YLOCK: b[j][i].rect = IntRect(96, 0, 32, 32); b[j][i].isSolid = sfTrue; break;
@@ -657,8 +655,8 @@ void displayEditor(Window* _window)
 		sfSprite_setScale(hudEditor, vector2f(2.f, 2.f));
 		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
 
-		sfSprite_setTexture(hudEditor, GetTexture("objects"), sfFalse);
-		sfSprite_setTextureRect(hudEditor, IntRect(0, 0, 128, 128));
+		sfSprite_setTexture(hudEditor, GetTexture("objects"), sfTrue);
+		//sfSprite_setTextureRect(hudEditor, IntRect(0, 0, 128, 128));
 		sfSprite_setPosition(hudEditor, vector2f(576.f, 0.f));
 		sfSprite_setScale(hudEditor, vector2f(2.f, 2.f));
 		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);

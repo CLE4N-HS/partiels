@@ -98,17 +98,19 @@ void updateMenu(Window* _window)
 		break;
 	}
 
-	for (int i = 0; i < /*8*/nbPlayer; i++)
+	for (int i = 0; i < 1; i++)
 	{
-		if (Gamepad_isButtonPressed(i, CROIX) && timer > 0.2f)
+		if (isButtonPressed(0, A) && timer > 0.2f)
 		{
 			switch (menuSelection)
 			{
 			case 0:
+				isEditor = sfFalse;
 				changeState(_window, GAME);
 				break;
 			case 1:
-				changeState(_window, EDITOR);
+				isEditor = sfTrue;
+				changeState(_window, GAME);
 				break;
 			case 2:
 				toggleOptions();
@@ -170,6 +172,7 @@ void updateMenu(Window* _window)
 		switch (menuSelection)
 		{
 		case 0:
+			isEditor = sfFalse;
 			changeState(_window, GAME);
 			break;
 		case 1:

@@ -26,10 +26,6 @@ typedef struct {
 	float lauchingTimer;
 	float musicBlocTimer;
 
-	sfBool hasGreenKey;
-	sfBool hasBlueKey;
-	sfBool hasRedKey;
-	sfBool hasYellowKey;
 }Players;
 Players p[2];
 
@@ -80,10 +76,6 @@ void initPlayer()
 		p[i].lauchingTimer = LAUNCHING_TIMER_DURATION;
 		p[i].musicBlocTimer = MUSIC_BLOC_TIMER_DURATION;
 		p[i].drag = vector2f(1.f, 1.f);
-		p[i].hasGreenKey = sfFalse;
-		p[i].hasBlueKey = sfFalse;
-		p[i].hasRedKey = sfFalse;
-		p[i].hasYellowKey = sfFalse;
 
 		p[i].sprite = sfSprite_create();
 		sfSprite_setOrigin(p[i].sprite, vector2f(16.f, 16.f));

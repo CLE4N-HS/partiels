@@ -95,7 +95,7 @@ void setupKeys()
 
 void collectKey(int _player, int _key)
 {
-	hud[_player][_key].rect.top = 44;
+	hud[_player][_key].rect.top = 40;
 
 	sfColor keyColor;
 	switch (_key)

@@ -20,7 +20,7 @@ single rightMoving ../Ressources/Textures/GAME/objects/rightMoving.png
 single musicBloc ../Ressources/Textures/GAME/objects/musicBloc.png
 single doors ../Ressources/Textures/GAME/tiles/doors.png
 single spawn ../Ressources/Textures/GAME/tiles/spawn.png
-single objects ../Ressources/Textures/GAME/tiles/objects.png
+single objects ../Ressources/Textures/GAME/tiles/allObjects.png
 single xboxA ../Ressources/Textures/GAME/objects/xboxA.png
 
 single keys ../Ressources/Textures/GAME/hud/keys.png

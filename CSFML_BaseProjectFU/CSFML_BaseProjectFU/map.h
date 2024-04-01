@@ -111,6 +111,22 @@ typedef enum {
 	T_BPRESSEDBUTTON,
 	T_RPRESSEDBUTTON,
 	T_YPRESSEDBUTTON,
+
+	T_GREVERSEDBUTTON,
+	T_BREVERSEDBUTTON,
+	T_RREVERSEDBUTTON,
+	T_YREVERSEDBUTTON,
+
+	T_GREVERSEDPRESSEDBUTTON,
+	T_BREVERSEDPRESSEDBUTTON,
+	T_RREVERSEDPRESSEDBUTTON,
+	T_YREVERSEDPRESSEDBUTTON,
+
+	T_GOPENEDEXBLOCK,
+	T_BOPENEDEXBLOCK,
+	T_ROPENEDEXBLOCK,
+	T_YOPENEDEXBLOCK,
+
 }blockType;
 
 typedef struct {
@@ -162,3 +178,11 @@ sfBool isMapFinished();
 sfVector2f getFinishPlayerPos(int _nb);
 
 sfIntRect getKeysAvailable();
+
+void delock(int _j, int _i);
+
+void keyBounds(sfFloatRect* _bounds);
+
+void buttonBounds(sfFloatRect* _bounds);
+
+void reversedButtonBounds(sfFloatRect* _bounds);

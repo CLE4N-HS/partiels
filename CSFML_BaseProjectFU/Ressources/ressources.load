@@ -22,6 +22,9 @@ single doors ../Ressources/Textures/GAME/tiles/doors.png
 single spawn ../Ressources/Textures/GAME/tiles/spawn.png
 single objects ../Ressources/Textures/GAME/tiles/allObjects.png
 single xboxA ../Ressources/Textures/GAME/objects/xboxA.png
+single arrow ../Ressources/Textures/GAME/objects/arrow.png
 
 single keys ../Ressources/Textures/GAME/hud/keys.png
+
+font GingerSoda ../Ressources/Fonts/GingerSoda.ttf
 [end]

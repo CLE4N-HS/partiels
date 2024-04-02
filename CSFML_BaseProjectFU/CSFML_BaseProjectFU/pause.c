@@ -54,7 +54,7 @@ void updatePause(Window* _window)
 	static float timer = 0.0f;
 	timer += getDeltaTime();
 
-	for (int i = 0; i < /*8*/nbPlayer; i++)
+	for (int i = 0; i < /*8*/1; i++)
 	{
 		if (Gamepad_isButtonPressed(i, OPTION) && timer > 0.2f)
 		{
@@ -84,9 +84,13 @@ void updatePause(Window* _window)
 			{
 				togglePause();
 			}
+			else if (pauseSelect == 1)
+			{
+				toggleOptions();
+			}
 			else if (pauseSelect == 2)
 			{
-				CreateDialogBox(ALERT, "Voulez vous retourner au menu?\n", 1);
+				CreateDialogBox(ALERT, "Return to menu ?\n", 1);
 			}
 
 			timer = 0.0f;
@@ -124,16 +128,12 @@ void updatePause(Window* _window)
 		}
 		else if (pauseSelect == 2)
 		{
-			CreateDialogBox(ALERT, "Voulez vous retourner au menu?\n", 1);
+			CreateDialogBox(ALERT, "Return to menu ?\n", 1);
 		}
 
 		timer = 0.0f;
 	}
-	//remove
-	if (sfKeyboard_isKeyPressed(sfKeyA) && timer > 0.2f) {
-		CreateDialogBox(INFO, "SALUT", 1);
-		timer = 0.f;
-	}
+
 
 	if (sfKeyboard_isKeyPressed(sfKeyP) && timer > 0.2f) {
 		sfText_setFont(txtReturnGame, GetFont("tmpFont"));

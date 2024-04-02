@@ -10,7 +10,7 @@ void initTools()
 {
 	sfclock = sfClock_create();
 	srand(time(NULL));
-	defaultFont = sfFont_createFromFile(FONT_PATH"Square.ttf");
+	defaultFont = sfFont_createFromFile(FONT_PATH"GingerSoda.ttf");
 }
 
 sfFont* getDefaultFont()

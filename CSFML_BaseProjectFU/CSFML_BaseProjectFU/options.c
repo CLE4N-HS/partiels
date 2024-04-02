@@ -131,7 +131,7 @@ void updateOptions(Window* _window)
 		}
 		timer = 0.0f;
 	}
-	if (isKeyboardOrControllerButtonMoved(sfKeyRight, STICKLX, sfFalse, 30.f) && timer > 0.1f)
+	if (isMovedOrPressed(sfTrue, sfTrue, 30.f, sfKeyRight) && timer > 0.1f)
 	{
 		if (optionSelect == 1)
 		{
@@ -147,7 +147,7 @@ void updateOptions(Window* _window)
 		}
 		timer = 0.0f;
 	}
-	if (isKeyboardOrControllerButtonMoved(sfKeyLeft, STICKLX, sfTrue, 30.f) && timer > 0.1f)
+	if (isMovedOrPressed(sfTrue, sfTrue, -30.f, sfKeyLeft) && timer > 0.1f)
 	{
 		if (optionSelect == 1)
 		{

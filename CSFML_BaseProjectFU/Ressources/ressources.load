@@ -26,5 +26,7 @@ single arrow ../Ressources/Textures/GAME/objects/arrow.png
 
 single keys ../Ressources/Textures/GAME/hud/keys.png
 
+single star ../Ressources/Textures/GAME/objects/star.png
+
 font GingerSoda ../Ressources/Fonts/GingerSoda.ttf
 [end]

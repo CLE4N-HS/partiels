@@ -415,7 +415,6 @@ void updateMap(Window* _window)
 		setFinishViewPos(1, astronautDoorPos);
 		setAnimPlayer(FROG, THROW);
 		setAnimPlayer(ASTRONAUT, THROW);
-		pressedButtons = IntRect(0, 0, 0, 0);
 	}
 
 	// reset xboxA button
@@ -436,11 +435,13 @@ void updateMap(Window* _window)
 	else if (sfKeyboard_isKeyPressed(sfKeyNumpad7)) key = 7;
 	else if (sfKeyboard_isKeyPressed(sfKeyNumpad8)) key = 8;
 	else if (sfKeyboard_isKeyPressed(sfKeyNumpad9)) key = 9;
+
 	if (key > 0 && changeMapTimer > 0.5f) {
 		changeMapTimer = 0.f;
 		loadMap(key);
 		setPlayerSpawnPos();
 		setupKeys();
+		pressedButtons = IntRect(0, 0, 0, 0);
 		nbMap = key;
 	}
 }

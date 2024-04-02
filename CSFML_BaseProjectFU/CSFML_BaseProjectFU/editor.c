@@ -17,13 +17,14 @@ int currentTile;
 sfIntRect tileCursorRect;
 sfBool canPlaceTile;
 
-sfText* txtVisible;
-sfText* txtCollision;
+sfText* txtSpace;
+sfText* txtMap;
 sfText* txtNbMap;
+sfText* txtMove;
+sfText* txtCopy;
 
-sfBool isVisible;
-sfBool isCollisionEditor;
 sfBool isEditorHUD;
+sfBool canHud;
 
 void initEditor()
 {
@@ -50,25 +51,34 @@ void initEditor()
 
 	//initView(); 
 
-	txtVisible = sfText_create();
-	sfText_setFont(txtVisible, GetFont("riangriung"));
-	sfText_setString(txtVisible, "N : Visible : YES");
-	sfText_setPosition(txtVisible, vector2f(20.f, 920.f));
+	txtSpace = sfText_create();
+	sfText_setFont(txtSpace, GetFont("GingerSoda"));
+	sfText_setString(txtSpace, "Space to open the editor");
+	sfText_setPosition(txtSpace, vector2f(20.f, 920.f));
 
-	txtCollision = sfText_create();
-	sfText_setFont(txtCollision, GetFont("riangriung"));
-	sfText_setString(txtCollision, "B : Collision : YES");
-	sfText_setPosition(txtCollision, vector2f(20.f, 950.f));
+	txtMap = sfText_create();
+	sfText_setFont(txtMap, GetFont("GingerSoda"));
+	sfText_setString(txtMap, "Numpad 1 - 9 to change maps");
+	sfText_setPosition(txtMap, vector2f(20.f, 950.f));
 
 	txtNbMap = sfText_create();
 	sfText_setFont(txtNbMap, GetFont("GingerSoda"));
-	sfText_setString(txtNbMap, "Nb Map : 1 (M to save)");
-	sfText_setPosition(txtNbMap, vector2f(20.f, 980.f));
+	sfText_setString(txtNbMap, "Current Map : 1 (M to save)");
+	sfText_setPosition(txtNbMap, vector2f(20.f, 1010.f));
+
+	txtMove = sfText_create();
+	sfText_setFont(txtMove, GetFont("GingerSoda"));
+	sfText_setString(txtMove, "Z - Q - S - D to move");
+	sfText_setPosition(txtMove, vector2f(20.f, 890.f));
+
+	txtCopy = sfText_create();
+	sfText_setFont(txtCopy, GetFont("GingerSoda"));
+	sfText_setString(txtCopy, "C + Numpad 1 - 9 to copy into this Map");
+	sfText_setPosition(txtCopy, vector2f(20.f, 980.f));
 	
-	isVisible = sfTrue;
-	isCollisionEditor = sfTrue;
 	isEditorHUD = sfFalse;
 	canPlaceTile = sfFalse;
+	canHud = sfTrue;
 }
 
 void updateEditor(Window* _window)
@@ -84,6 +94,7 @@ void updateEditor(Window* _window)
 	
 	if (!isEditorHUD)
 	{
+		sfText_setString(txtSpace, "Space to open the editor");
 		/// CHANGE TILE
 		if (sfKeyboard_isKeyPressed(sfKeyLeft) && timer > 0.1f)
 		{
@@ -114,10 +125,13 @@ void updateEditor(Window* _window)
 			timer = 0.f;
 		}
 
-		if (sfKeyboard_isKeyPressed(sfKeySpace) && timer > 0.1f)
+		if (!sfKeyboard_isKeyPressed(sfKeySpace)) {
+			canHud = sfTrue;
+		}
+		if (sfKeyboard_isKeyPressed(sfKeySpace) && canHud)
 		{
 			isEditorHUD = !isEditorHUD;
-			timer = 0.f;
+			canHud = sfFalse;
 		}
 	
 		/// SET TILE CURSOR RECT
@@ -214,6 +228,11 @@ void updateEditor(Window* _window)
 			case T_BBUTTON: tileCursorRect = IntRect(32, 96, 32, 32); break;
 			case T_RBUTTON: tileCursorRect = IntRect(64, 96, 32, 32); break;
 			case T_YBUTTON: tileCursorRect = IntRect(96, 96, 32, 32); break;
+
+			case T_GREVERSEDBUTTON: tileCursorRect = IntRect(0, 128, 32, 32); break;
+			case T_BREVERSEDBUTTON: tileCursorRect = IntRect(32, 128, 32, 32); break;
+			case T_RREVERSEDBUTTON: tileCursorRect = IntRect(64, 128, 32, 32); break;
+			case T_YREVERSEDBUTTON: tileCursorRect = IntRect(96, 128, 32, 32); break;
 
 			default: break;
 		}
@@ -336,38 +355,27 @@ void updateEditor(Window* _window)
 					case T_RBUTTON: b[j][i].rect = IntRect(64, 96, 32, 32); break;
 					case T_YBUTTON: b[j][i].rect = IntRect(96, 96, 32, 32); break;
 
+					case T_GREVERSEDBUTTON: b[j][i].rect = IntRect(0, 128, 32, 32); break;
+					case T_BREVERSEDBUTTON: b[j][i].rect = IntRect(32, 128, 32, 32); break;
+					case T_RREVERSEDBUTTON: b[j][i].rect = IntRect(64, 128, 32, 32); break;
+					case T_YREVERSEDBUTTON: b[j][i].rect = IntRect(96, 128, 32, 32); break;
+
 					default: break;
 					//}
 				//}
 			}
 		}
-
-		if (sfKeyboard_isKeyPressed(sfKeyN) && timer > 0.2f)
-		{
-			isVisible = !isVisible;
-			if (isVisible)
-				sfText_setString(txtVisible, "N : Visible : YES");
-			else
-				sfText_setString(txtVisible, "N : Visible : NO");
-			timer = 0.f;
-		}
-
-		if (sfKeyboard_isKeyPressed(sfKeyB) && timer > 0.2f)
-		{
-			isCollisionEditor = !isCollisionEditor;
-			if(isCollisionEditor)
-	 			sfText_setString(txtCollision, "B : Collision : YES"); 
-			else
-				sfText_setString(txtCollision, "B : Collision : NO");
-			timer = 0.f;
-		}
 	}
 	else
 	{
-		if (sfKeyboard_isKeyPressed(sfKeySpace) && timer > 0.5f)
+		sfText_setString(txtSpace, "Select a tile");
+		if (!sfKeyboard_isKeyPressed(sfKeySpace)) {
+			canHud = sfTrue;
+		}
+		if (sfKeyboard_isKeyPressed(sfKeySpace) && canHud)
 		{
 			isEditorHUD = !isEditorHUD;
-			timer = 0.f;
+			canHud = sfFalse;
 		}
 
 		if (canPlaceTile && !sfMouse_isButtonPressed(sfMouseLeft)) {
@@ -536,6 +544,11 @@ void updateEditor(Window* _window)
 			else if (mousePosX > 704.f && mousePosX < 768.f && mousePosY > 192.f && mousePosY < 256.f) currentTile = T_RBUTTON;
 			else if (mousePosX > 768.f && mousePosX < 832.f && mousePosY > 192.f && mousePosY < 256.f) currentTile = T_YBUTTON;
 
+			else if (mousePosX > 576.f && mousePosX < 640.f && mousePosY > 256.f && mousePosY < 320.f) currentTile = T_GREVERSEDBUTTON;
+			else if (mousePosX > 640.f && mousePosX < 704.f && mousePosY > 256.f && mousePosY < 320.f) currentTile = T_BREVERSEDBUTTON;
+			else if (mousePosX > 704.f && mousePosX < 768.f && mousePosY > 256.f && mousePosY < 320.f) currentTile = T_RREVERSEDBUTTON;
+			else if (mousePosX > 768.f && mousePosX < 832.f && mousePosY > 256.f && mousePosY < 320.f) currentTile = T_YREVERSEDBUTTON;
+
 
 			else
 				canPlaceTile = sfFalse;
@@ -543,11 +556,11 @@ void updateEditor(Window* _window)
 	}
 
 	// to remove improve
-	if (sfKeyboard_isKeyPressed(sfKeyEscape) && timer > 0.2f)
-	{
-		isEditor = sfFalse;
-		timer = 0.f;
-	}
+	//if (sfKeyboard_isKeyPressed(sfKeyEscape) && timer > 0.2f)
+	//{
+	//	isEditor = sfFalse;
+	//	timer = 0.f;
+	//}
 
 		//if (getPause())
 		//	updatePause(_window);
@@ -589,15 +602,15 @@ void updateEditor(Window* _window)
 
 			switch (nbMap)
 			{
-			case 1: sfText_setString(txtNbMap, "Nb Map : 1 (M to save)"); break;
-			case 2: sfText_setString(txtNbMap, "Nb Map : 2 (M to save)"); break;
-			case 3: sfText_setString(txtNbMap, "Nb Map : 3 (M to save)"); break;
-			case 4: sfText_setString(txtNbMap, "Nb Map : 4 (M to save)"); break;
-			case 5: sfText_setString(txtNbMap, "Nb Map : 5 (M to save)"); break;
-			case 6: sfText_setString(txtNbMap, "Nb Map : 6 (M to save)"); break;
-			case 7: sfText_setString(txtNbMap, "Nb Map : 7 (M to save)"); break;
-			case 8: sfText_setString(txtNbMap, "Nb Map : 8 (M to save)"); break;
-			case 9: sfText_setString(txtNbMap, "Nb Map : 9 (M to save)"); break;
+			case 1: sfText_setString(txtNbMap, "Current Map : 1 (M to save)"); break;
+			case 2: sfText_setString(txtNbMap, "Current Map : 2 (M to save)"); break;
+			case 3: sfText_setString(txtNbMap, "Current Map : 3 (M to save)"); break;
+			case 4: sfText_setString(txtNbMap, "Current Map : 4 (M to save)"); break;
+			case 5: sfText_setString(txtNbMap, "Current Map : 5 (M to save)"); break;
+			case 6: sfText_setString(txtNbMap, "Current Map : 6 (M to save)"); break;
+			case 7: sfText_setString(txtNbMap, "Current Map : 7 (M to save)"); break;
+			case 8: sfText_setString(txtNbMap, "Current Map : 8 (M to save)"); break;
+			case 9: sfText_setString(txtNbMap, "Current Map : 9 (M to save)"); break;
 			default:
 				break;
 			}
@@ -610,7 +623,7 @@ void updateEditor(Window* _window)
 		sfText_setString(txtNbMap, "Map saved", nbMap);
 	}
 
-	if (isButtonPressed(0, START) && timer > 0.2f) {
+	if ((isButtonPressed(0, START) || sfKeyboard_isKeyPressed(sfKeyEscape)) && timer > 0.2f) {
 		timer = 0.f;
 		togglePause();
 	}
@@ -623,17 +636,20 @@ void updateEditor(Window* _window)
 
 void displayEditor(Window* _window)
 {
-
-	//displayParallax(_window);
 	displayMap(_window);
 	/// TILE CURSOR
-	if (currentTile == T_SLINGSHOT)	sfSprite_setTexture(tileCursor, GetTexture("slingshot"), sfFalse);
+	sfSprite_setScale(tileCursor, vector2f(2.f, 2.f));
+
+	if (currentTile == T_SLINGSHOT) {
+		sfSprite_setTexture(tileCursor, GetTexture("slingshot"), sfFalse);
+		sfSprite_setScale(tileCursor, vector2f(1.f, 0.3f));
+	}
 	else if (currentTile == T_LLEFTMOVING || currentTile == T_LMOVING || currentTile == T_LRIGHTMOVING) sfSprite_setTexture(tileCursor, GetTexture("leftMoving"), sfFalse);
 	else if (currentTile == T_RLEFTMOVING || currentTile == T_RMOVING || currentTile == T_RRIGHTMOVING) sfSprite_setTexture(tileCursor, GetTexture("rightMoving"), sfFalse);
 	else if (currentTile == T_MUSICBLOC) sfSprite_setTexture(tileCursor, GetTexture("musicBloc"), sfFalse);
 	else if (currentTile == T_DOOR) sfSprite_setTexture(tileCursor, GetTexture("doors"), sfFalse);
 	else if (currentTile == T_FROGSPAWN || currentTile == T_ASTRONAUTSPAWN) sfSprite_setTexture(tileCursor, GetTexture("spawn"), sfFalse);
-	else if (currentTile >= T_GLOCK && currentTile <= T_YPRESSEDBUTTON) sfSprite_setTexture(tileCursor, GetTexture("objects"), sfFalse);
+	else if (currentTile >= T_GLOCK && currentTile <= T_YREVERSEDPRESSEDBUTTON) sfSprite_setTexture(tileCursor, GetTexture("objects"), sfFalse);
 	else sfSprite_setTexture(tileCursor, GetTexture("castleTiles"), sfFalse);
 
 	sfSprite_setTextureRect(tileCursor, tileCursorRect);
@@ -642,10 +658,20 @@ void displayEditor(Window* _window)
 	if (currentTile != T_NOTILE)
 		sfRenderTexture_drawSprite(_window->renderTexture, tileCursor, NULL);
 
+	if (currentTile == T_SLINGSHOT) {
+		sfSprite_setTexture(tileCursor, GetTexture("slingshot"), sfFalse);
+		sfSprite_setTextureRect(tileCursor, IntRect(66, 0, 43, 206));
+		sfSprite_setScale(tileCursor, vector2f(1.f, 0.3f));
+		sfSprite_setPosition(tileCursor, vector2f(getfWorldMousePos(_window->renderWindow).x, getfWorldMousePos(_window->renderWindow).y));
+		sfRenderTexture_drawSprite(_window->renderTexture, tileCursor, NULL);
+	}
+
 	sfRenderTexture_setView(_window->renderTexture, sfRenderTexture_getDefaultView(_window->renderTexture));
-	sfRenderTexture_drawText(_window->renderTexture, txtCollision, NULL);
-	sfRenderTexture_drawText(_window->renderTexture, txtVisible, NULL);
+	sfRenderTexture_drawText(_window->renderTexture, txtMap, NULL);
+	sfRenderTexture_drawText(_window->renderTexture, txtSpace, NULL);
 	sfRenderTexture_drawText(_window->renderTexture, txtNbMap, NULL);
+	sfRenderTexture_drawText(_window->renderTexture, txtMove, NULL);
+	sfRenderTexture_drawText(_window->renderTexture, txtCopy, NULL);
 	if (isEditorHUD)
 	{
 		sfRenderTexture_drawRectangleShape(_window->renderTexture, rectCursor, NULL);
@@ -655,10 +681,86 @@ void displayEditor(Window* _window)
 		sfSprite_setScale(hudEditor, vector2f(2.f, 2.f));
 		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
 
-		sfSprite_setTexture(hudEditor, GetTexture("objects"), sfTrue);
-		//sfSprite_setTextureRect(hudEditor, IntRect(0, 0, 128, 128));
-		sfSprite_setPosition(hudEditor, vector2f(576.f, 0.f));
+		sfSprite_setTexture(hudEditor, GetTexture("slingshot"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(66, 0, 43, 206));
+		sfSprite_setPosition(hudEditor, vector2f(256.f, 384.f));
+		sfSprite_setScale(hudEditor, vector2f(1.f, 0.3f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("slingshot"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(0, 0, 66, 206));
+		sfSprite_setPosition(hudEditor, vector2f(256.f, 384.f));
+		sfSprite_setScale(hudEditor, vector2f(1.f, 0.3f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
 		sfSprite_setScale(hudEditor, vector2f(2.f, 2.f));
+
+		sfSprite_setTexture(hudEditor, GetTexture("leftMoving"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(0, 0, 32, 32));
+		sfSprite_setPosition(hudEditor, vector2f(320.f, 384.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("leftMoving"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(0, 32, 32, 32));
+		sfSprite_setPosition(hudEditor, vector2f(384.f, 384.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("arrow"), sfTrue);
+		sfSprite_setScale(hudEditor, vector2f(1.f, 1.f));
+		sfSprite_setPosition(hudEditor, vector2f(400.f, 400.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setScale(hudEditor, vector2f(2.f, 2.f));
+
+		sfSprite_setTexture(hudEditor, GetTexture("leftMoving"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(0, 64, 32, 32));
+		sfSprite_setPosition(hudEditor, vector2f(448.f, 384.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("rightMoving"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(0, 0, 32, 32));
+		sfSprite_setPosition(hudEditor, vector2f(0.f, 448.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("rightMoving"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(0, 32, 32, 32));
+		sfSprite_setPosition(hudEditor, vector2f(64.f, 448.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("arrow"), sfTrue);
+		sfSprite_setScale(hudEditor, vector2f(-1.f, 1.f));
+		sfSprite_setPosition(hudEditor, vector2f(112.f, 460.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setScale(hudEditor, vector2f(2.f, 2.f));
+
+		sfSprite_setTexture(hudEditor, GetTexture("rightMoving"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(0, 64, 32, 32));
+		sfSprite_setPosition(hudEditor, vector2f(128.f, 448.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("musicBloc"), sfTrue);
+		sfSprite_setPosition(hudEditor, vector2f(192.f, 448.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("doors"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(0, 0, 32, 32));
+		sfSprite_setPosition(hudEditor, vector2f(256.f, 448.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("spawn"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(0, 0, 32, 32));
+		sfSprite_setPosition(hudEditor, vector2f(320.f, 448.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("spawn"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(32, 0, 32, 32));
+		sfSprite_setPosition(hudEditor, vector2f(384.f, 448.f));
+		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
+
+		sfSprite_setTexture(hudEditor, GetTexture("objects"), sfFalse);
+		sfSprite_setTextureRect(hudEditor, IntRect(0, 0, 128, 160));
+		sfSprite_setPosition(hudEditor, vector2f(576.f, 0.f));
 		sfRenderTexture_drawSprite(_window->renderTexture, hudEditor, NULL);
 	}
 	sfRenderTexture_setView(_window->renderTexture, mainView->view);

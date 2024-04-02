@@ -22,7 +22,7 @@ void initMenu(Window* _window)
 {
 	Texture_Onload(MENU);
 
-	venture3D = sfFont_createFromFile("../Ressources/Fonts/3Dventure.ttf");
+	venture3D = sfFont_createFromFile("../Ressources/Fonts/GingerSoda.ttf");
 
 	SetViewPosition(mainView, vector2f(mainView->defaultVideoMode.x / 2.0f, mainView->defaultVideoMode.y / 2.0f));
 
@@ -56,18 +56,6 @@ void updateMenu(Window* _window)
 	static float timer = 0.0f;
 	timer += getDeltaTime();
 
-	// to remove
-	sfVector2f mousePos = getfMousePos(_window->renderWindow);
-	if ((sfKeyboard_isKeyPressed(sfKeyE) || lClick(_window->renderWindow)) && timer > 0.01f) {
-		CreateParticles(mousePos, vector2f(20.f, 20.f), vector2f(10.f, 10.f), vector2f(0.5f, 0.5f), 0.f, 360.f, 1.f, 0.f, 100.f, 1000.f, 15.f, color(0, 255, 255, 255), color(255, 0, 255, 0), 1.f, 3.f, 10, "yes", IntRect(0.f, 0.f, 0.f, 0.f), NULL, 1.f, 3.f, 10.f);
-		timer = 0.f;
-	}
-	if (rClick(_window->renderWindow) && timer > 0.01f) {
-		CreateParticles(mousePos, vector2f(1.f, 1.f), vector2f(0.0f, 0.0f), vector2f(400.f, 300.f), -45.f, 45.f, 1000.f, 5.f, 100.f, 1000.f, 20.0f, color(0, 255, 255, 255), color(255, 0, 255, 0), 5.f, 10.f, 1, "bg", IntRect(100.f, 100.f, 400.f, 300.f), NULL, 0.f, 1.f, 2.f);
-		timer = -0.3f;
-	}
-	//
-
 	switch (menuSelection)
 	{
 	case 0:
@@ -98,23 +86,26 @@ void updateMenu(Window* _window)
 		break;
 	}
 
-	for (int i = 0; i < /*8*/nbPlayer; i++)
+	for (int i = 0; i < 1; i++)
 	{
-		if (Gamepad_isButtonPressed(i, CROIX) && timer > 0.2f)
+		if (isButtonPressed(0, A) && timer > 0.2f)
 		{
 			switch (menuSelection)
 			{
 			case 0:
+				isEditor = sfFalse;
 				changeState(_window, GAME);
 				break;
 			case 1:
-				changeState(_window, EDITOR);
+				isEditor = sfTrue;
+				changeState(_window, GAME);
 				break;
 			case 2:
 				toggleOptions();
 				break;
 			case 3:
-				_window->isDone = sfTrue;
+				//_window->isDone = sfTrue;
+				CreateDialogBox(ALERT, "Do you really want to quit ?", QUIT_TO_DESKTOP_DB);
 				break;
 			default:
 				break;
@@ -170,6 +161,7 @@ void updateMenu(Window* _window)
 		switch (menuSelection)
 		{
 		case 0:
+			isEditor = sfFalse;
 			changeState(_window, GAME);
 			break;
 		case 1:

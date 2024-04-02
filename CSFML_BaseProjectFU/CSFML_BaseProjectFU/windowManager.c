@@ -7,7 +7,7 @@
 sfTexture* allTextures;
 sfSprite* allSprites;
 
-
+float fullscreenTimer;
 
 sfBool IsDone(Window* This)
 {
@@ -56,10 +56,10 @@ Window* windowSetup(const char* _Title, sfVector2i _defaultVideoMode)
 	sfFloatRect rectViewPort = { 0.0f, 0.0f, 1.0f, 1.0f };
 	mainView = setupView(_defaultVideoMode, rectViewPort, This->videoMode);
 
+	fullscreenTimer = 0.f;
+
 	// Render Texture
-	//This->renderTexture = sfRenderTexture_create(NB_BLOCKS_X * BLOCK_SCALE * BLOCK_SIZE, NB_BLOCKS_X * BLOCK_SCALE * BLOCK_SIZE, sfFalse);
 	This->renderTexture = sfRenderTexture_create(_defaultVideoMode.x, _defaultVideoMode.y, sfFalse);
-	//allTextures = sfTexture_create(_defaultVideoMode.x, _defaultVideoMode.y);
 	allSprites = sfSprite_create();
 
 	return This;
@@ -79,9 +79,13 @@ void windowCreate(Window* This)
 
 void ToggleFullscreen(Window* This)
 {
-	This->isFullscreen = !This->isFullscreen;
-	windowDestroy(This);
-	windowCreate(This);
+	if (fullscreenTimer > 0.5f)
+	{
+		fullscreenTimer = 0.f;
+		This->isFullscreen = !This->isFullscreen;
+		windowDestroy(This);
+		windowCreate(This);
+	}
 }
 
 void windowInit(Window* This) // useless because stateInit() is called in changeState()
@@ -122,6 +126,8 @@ void windowUpdate(Window* This)
 	sfView_setCenter(mainView->view, mainView->PosView);
 	
 	stateUpdate(This);
+
+	fullscreenTimer += getDeltaTime();
 }
 
 void windowDraw(Window* This)

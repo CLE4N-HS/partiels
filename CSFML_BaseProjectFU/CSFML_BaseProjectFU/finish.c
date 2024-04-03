@@ -3,6 +3,7 @@
 #include "CustomMath.h"
 #include "map.h"
 #include "textureManager.h"
+#include "soundManager.h"
 
 typedef struct {
 	sfView* view;
@@ -100,6 +101,9 @@ void updateFinish(Window* _window)
 			opaqueTimer = OPAQUE_TIMER_DURATION;
 			setMapFinishedState(sfFalse);
 			setEndState(END_SCREEN);
+			sfTime time;
+			time.microseconds = 0;
+			PlayASound("Reflection", sfTrue, time);
 			changeState(_window, MENU);
 		}
 

@@ -62,7 +62,9 @@ void RemoveAllSoundsButALL();
 /// </summary>
 /// <param name="_name">The name of the Sound</param>
 /// <param name="_loop">sfTrue if you want to loop it, sfFalse if not or to stop the loop</param>
-void PlayASound(char* _name, sfBool _loop);
+void PlayASound(char* _name, sfBool _loop, sfTime _offset);
+
+void StopASound(char* _name);
 
 /// <summary>
 /// Changes the volume of Sounds or Musics based on the user choice

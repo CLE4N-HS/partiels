@@ -147,7 +147,7 @@ void RemoveAllSoundsButALL()
 	}
 }
 
-void PlayASound(char* _name, sfBool _loop)
+void PlayASound(char* _name, sfBool _loop, sfTime _offset)
 {
 	Sound* tmpSound = soundBegin;
 	while (tmpSound != NULL)
@@ -155,13 +155,34 @@ void PlayASound(char* _name, sfBool _loop)
 		if (strcmp(_name, tmpSound->name) == 0) {
 			if (tmpSound->type == MUSIC) {
 				sfMusic_setVolume(tmpSound->music, musicVolume);
+				sfMusic_setPlayingOffset(tmpSound->music, _offset);
 				sfMusic_play(tmpSound->music);
 				sfMusic_setLoop(tmpSound->music, _loop);
 			}
 			else if (tmpSound->type == SOUNDFX) {
 				sfSound_setVolume(tmpSound->sound, SFXVolume);
+				sfSound_setPlayingOffset(tmpSound->sound, _offset);
 				sfSound_play(tmpSound->sound);
 				sfSound_setLoop(tmpSound->music, _loop);
+			}
+			return;
+		}
+		tmpSound = tmpSound->pNext;
+	}
+	printf("Unable to play the sound : %s , the name given might be wrong\n", _name);
+}
+
+void StopASound(char* _name)
+{
+	Sound* tmpSound = soundBegin;
+	while (tmpSound != NULL)
+	{
+		if (strcmp(_name, tmpSound->name) == 0) {
+			if (tmpSound->type == MUSIC) {
+				sfMusic_stop(tmpSound->music);
+			}
+			else if (tmpSound->type == SOUNDFX) {
+				sfSound_stop(tmpSound->sound);
 			}
 			return;
 		}

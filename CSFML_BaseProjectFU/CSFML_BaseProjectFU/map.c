@@ -6,6 +6,7 @@
 #include "hud.h"
 #include "particlesSystemManager.h"
 #include "choice.h"
+#include "soundManager.h"
 
 #define NB_VERTEX 100
 #define SECONDS_BETWEEN 0.04197f
@@ -418,6 +419,9 @@ void updateMap(Window* _window)
 		setFinishViewPos(1, astronautDoorPos);
 		setAnimPlayer(FROG, THROW);
 		setAnimPlayer(ASTRONAUT, THROW);
+		sfTime time;
+		time.microseconds = 10000000;
+		PlayASound("finish", sfFalse, time);
 	}
 
 	// reset xboxA button
@@ -1335,6 +1339,9 @@ void delock(int _j, int _i)
 	b[_j][_i].type = T_EMPTY;
 	b[_j][_i].rect = IntRect(1 * BLOCK_SIZE, 4 * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 	b[_j][_i].isSolid = sfFalse;
+	sfTime time;
+	time.microseconds = 10000000;
+	PlayASound("unlock", sfFalse, time);
 }
 
 void keyBounds(sfFloatRect* _bounds)

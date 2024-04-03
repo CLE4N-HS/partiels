@@ -4,6 +4,7 @@
 #include "viewManager.h"
 #include "map.h"
 #include "particlesSystemManager.h"
+#include "soundManager.h"
 
 sfSprite* hudSprite;
 
@@ -109,6 +110,9 @@ void collectKey(int _player, int _key)
 		break;
 	}
 	CreateParticles(getPlayerPos(_player), vector2f(10.f, 10.f), vector2f(10.f, 10.f), vector2f(5.f, 5.f), 0.f, 360.f, 0.f, 0.f, 100.f, 200.f, 5.f, keyColor, color(keyColor.r, keyColor.g, keyColor.b, 0), 0.4f, 0.6f, 50, "no", IntRect(0, 0, 0, 0), NULL, 0.f, 0.f, 0.f);
+	sfTime time;
+	time.microseconds = 10000000;
+	PlayASound("collectKeys", sfFalse, time);
 }
 
 sfBool canOpenLock(int _player, int _key)

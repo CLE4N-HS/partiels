@@ -1,6 +1,7 @@
 #include "choice.h"
 #include "fontManager.h"
 #include "gamepadx.h"
+#include "map.h"
 
 sfText* choiceText;
 
@@ -60,6 +61,7 @@ void updateChoice(Window* _window)
 			timer = 0.f;
 			isChoice = sfFalse;
 			if (nbChoice >= 0 && nbChoice <= 8) {
+				setMapFinishedState(sfFalse);
 				changeState(_window, GAME);
 			}
 			else {

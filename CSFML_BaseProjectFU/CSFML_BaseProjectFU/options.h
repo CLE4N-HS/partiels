@@ -26,3 +26,7 @@ void displayOptions(Window* _window);
 /// Removes from the memory everything that was needed for the Options
 /// </summary>
 void deinitOptions();
+
+void saveOptions(Window* _window);
+
+void loadOptions(Window* _window);

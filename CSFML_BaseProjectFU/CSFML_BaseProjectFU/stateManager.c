@@ -38,6 +38,7 @@ void stateInit(Window* _window)
 
 		nbPlayer = NbConnectedControllers();
 		initParticlesSystem();
+		loadOptions(_window);
 
 		isEditor = sfFalse;
 		firstload = sfTrue;
@@ -280,4 +281,14 @@ void togglePause()
 void toggleOptions()
 {
 	isOption = !isOption;
+}
+
+EndState getEndState()
+{
+	return endState;
+}
+
+void setEndState(EndState _endState)
+{
+	endState = _endState;
 }

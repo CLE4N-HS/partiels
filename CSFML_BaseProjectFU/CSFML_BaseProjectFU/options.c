@@ -3,6 +3,7 @@
 #include "stateManager.h"
 #include "viewManager.h"
 #include "gamepad.h"
+#include "editor.h"
 
 sfRectangleShape* backgroundOpt;
 sfRectangleShape* sfxVolumeBar;
@@ -15,6 +16,14 @@ sfText* MusicSoundTxt;
 sfText* returnTxt;
 int optionSelect;
 
+typedef struct Config{
+	sfBool isFullscreen;
+	float sfxVolume;
+	float musicVolume;
+}Config;
+Config config;
+
+sfBool firstLaunch = sfTrue;
 
 void initOptions(Window* _window)
 {
@@ -237,4 +246,50 @@ void deinitOptions()
 	sfText_destroy(SfxSoundTxt);
 	sfText_destroy(MusicSoundTxt);
 	sfText_destroy(returnTxt);
+}
+
+void saveOptions(Window* _window)
+{
+	config.isFullscreen = IsFullscreen(_window);
+	//SFXVolume = config.sfxVolume;
+	//musicVolume = config.musicVolume;
+
+	config.sfxVolume = SFXVolume;
+	config.musicVolume = musicVolume;
+
+	FILE* file;
+	file = fopen(SAVE_PATH"config.cfg", "wb");
+	fwrite(&config, sizeof(struct Config), 1, file);
+	fclose(file);
+}
+
+void loadOptions(Window* _window)
+{
+	FILE* file;
+	file = fopen(SAVE_PATH"config.cfg", "rb");
+	if (file == NULL) {
+		config.isFullscreen = sfFalse;
+		config.sfxVolume = 50.f;
+		config.musicVolume = 50.f;
+
+		SFXVolume = config.sfxVolume;
+		musicVolume = config.musicVolume;
+
+		file = fopen(SAVE_PATH"config.cfg", "ab");
+		file = fclose(file);
+		return;
+	}
+	fread(&config, sizeof(struct Config), 1, file);
+	fclose(file);
+
+	SFXVolume = config.sfxVolume;
+	musicVolume = config.musicVolume;
+
+	if (config.isFullscreen && firstLaunch) {
+		firstLaunch = sfFalse;
+		ToggleFullscreen(_window);
+	}
+
+	ChangeVolume(SOUNDFX, SFXVolume);
+	ChangeVolume(MUSIC, musicVolume);
 }

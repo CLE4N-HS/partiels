@@ -413,6 +413,7 @@ void updateMap(Window* _window)
 	if (nbPlayerAtDoors >= 2)
 	{
 		isMapF = sfTrue;
+		setEndState(FINSIH_ANIM);
 		setFinishViewPos(0, frogDoorPos);
 		setFinishViewPos(1, astronautDoorPos);
 		setAnimPlayer(FROG, THROW);
@@ -438,13 +439,14 @@ void updateMap(Window* _window)
 	else if (sfKeyboard_isKeyPressed(sfKeyNumpad8)) key = 8;
 	else if (sfKeyboard_isKeyPressed(sfKeyNumpad9)) key = 9;
 
-	if (key > 0 && changeMapTimer > 0.5f) {
+	if (key > 0 && changeMapTimer > 0.5f && !isMapF) {
 		changeMapTimer = 0.f;
 		loadMap(key);
 		setPlayerSpawnPos();
 		setupKeys();
 		pressedButtons = IntRect(0, 0, 0, 0);
 		nbMap = key;
+		setMapFinishedState(sfFalse);
 	}
 }
 
@@ -1297,6 +1299,11 @@ sfVector2f getSlingshotBasePos()
 sfBool isMapFinished()
 {
 	return isMapF;
+}
+
+void setMapFinishedState(sfBool _isMapF)
+{
+	isMapF = _isMapF;
 }
 
 sfVector2f getFinishPlayerPos(int _nb)

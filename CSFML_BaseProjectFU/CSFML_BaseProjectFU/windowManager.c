@@ -3,6 +3,7 @@
 #include "viewManager.h"
 #include "stateManager.h"
 #include "map.h"
+#include "options.h"
 
 sfTexture* allTextures;
 sfSprite* allSprites;
@@ -56,7 +57,7 @@ Window* windowSetup(const char* _Title, sfVector2i _defaultVideoMode)
 	sfFloatRect rectViewPort = { 0.0f, 0.0f, 1.0f, 1.0f };
 	mainView = setupView(_defaultVideoMode, rectViewPort, This->videoMode);
 
-	fullscreenTimer = 0.f;
+	fullscreenTimer = 1.f;
 
 	// Render Texture
 	This->renderTexture = sfRenderTexture_create(_defaultVideoMode.x, _defaultVideoMode.y, sfFalse);
@@ -128,6 +129,10 @@ void windowUpdate(Window* This)
 	stateUpdate(This);
 
 	fullscreenTimer += getDeltaTime();
+
+	if (IsDone(This)) {
+		saveOptions(This);
+	}
 }
 
 void windowDraw(Window* This)

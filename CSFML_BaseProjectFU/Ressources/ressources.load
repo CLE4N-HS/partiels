@@ -1,5 +1,7 @@
 [all]
 animation loadingAnim ../Ressources/Textures/loading.anim
+music Reflection ../Ressources/Musics/Reflection.ogg
+soundfx start ../Ressources/SoundsFX/start.ogg
 [end]
 [menu]
 single logo ../Ressources/Textures/logo.png
@@ -30,4 +32,8 @@ single keys ../Ressources/Textures/GAME/hud/keys.png
 single star ../Ressources/Textures/GAME/objects/star.png
 
 font GingerSoda ../Ressources/Fonts/GingerSoda.ttf
+
+soundfx collectKeys ../Ressources/SoundsFX/collectKeys.ogg
+soundfx unlock ../Ressources/SoundsFX/unlock.ogg
+soundfx finish ../Ressources/SoundsFX/finish.ogg
 [end]

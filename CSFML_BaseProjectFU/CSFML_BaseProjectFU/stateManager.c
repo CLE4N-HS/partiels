@@ -40,6 +40,10 @@ void stateInit(Window* _window)
 		initParticlesSystem();
 		loadOptions(_window);
 
+		sfTime time;
+		time.microseconds = 10000000;
+		PlayASound("Reflection", sfTrue, time);
+
 		isEditor = sfFalse;
 		firstload = sfTrue;
 		isChoice = sfFalse;

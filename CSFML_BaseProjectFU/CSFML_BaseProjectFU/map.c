@@ -5,6 +5,7 @@
 #include "finish.h"
 #include "hud.h"
 #include "particlesSystemManager.h"
+#include "choice.h"
 
 #define NB_VERTEX 100
 #define SECONDS_BETWEEN 0.04197f
@@ -58,8 +59,9 @@ void initMap()
 {
 	mapSprite = sfSprite_create();
 
-	nbMap = 1;
-	loadMap(1);
+	nbMap = getMapToLoad();
+	loadMap(nbMap);
+	setPlayerSpawnPos();
 	changeMapTimer = 0.f;
 
 	isMapF = sfFalse;
@@ -411,6 +413,7 @@ void updateMap(Window* _window)
 	if (nbPlayerAtDoors >= 2)
 	{
 		isMapF = sfTrue;
+		setEndState(FINSIH_ANIM);
 		setFinishViewPos(0, frogDoorPos);
 		setFinishViewPos(1, astronautDoorPos);
 		setAnimPlayer(FROG, THROW);
@@ -436,13 +439,14 @@ void updateMap(Window* _window)
 	else if (sfKeyboard_isKeyPressed(sfKeyNumpad8)) key = 8;
 	else if (sfKeyboard_isKeyPressed(sfKeyNumpad9)) key = 9;
 
-	if (key > 0 && changeMapTimer > 0.5f) {
+	if (key > 0 && changeMapTimer > 0.5f && !isMapF) {
 		changeMapTimer = 0.f;
 		loadMap(key);
 		setPlayerSpawnPos();
 		setupKeys();
 		pressedButtons = IntRect(0, 0, 0, 0);
 		nbMap = key;
+		setMapFinishedState(sfFalse);
 	}
 }
 
@@ -765,6 +769,9 @@ sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity, sfVector2f* _drag)
 	if (blockPos.y < 0 || blockPos.y >= NB_BLOCKS_Y || blockPos.x < 0 || blockPos.x >= NB_BLOCKS_X || blockPos2.y < 0 || blockPos2.y >= NB_BLOCKS_Y || blockPos2.x < 0 || blockPos2.x >= NB_BLOCKS_X) // out of array
 		return sfFalse;
 
+	if (_velocity->y < -0.f) // prolly flying
+		return sfFalse;
+
 	//tmpRect = FlRect(b[blockPos.y][blockPos.x].pos.x, b[blockPos.y][blockPos.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 	//tmpRect2 = FlRect(b[blockPos2.y][blockPos2.x].pos.x, b[blockPos2.y][blockPos2.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
 
@@ -797,7 +804,7 @@ sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity, sfVector2f* _drag)
 			break;
 		case T_MUSICBLOC:
 			if (getPlayerMusicBlocTimer(FROG) >= 0.9f) {
-				setPlayerMusicBlocTimer(FROG, 0.f); // TODO : DYNAMIC
+				setPlayerMusicBlocTimer(FROG, 0.f);
 				b[blockPos.y][blockPos.x].timer = MUSIC_BLOC_TIMER_DURATION;
 			}
 			//_drag->y = 1.1f;
@@ -835,7 +842,7 @@ sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity, sfVector2f* _drag)
 			break;
 		case T_MUSICBLOC:
 			if (getPlayerMusicBlocTimer(FROG) >= 0.9f) {
-				setPlayerMusicBlocTimer(FROG, 0.f); // TODO : DYNAMIC
+				setPlayerMusicBlocTimer(FROG, 0.f);
 				b[blockPos2.y][blockPos2.x].timer = MUSIC_BLOC_TIMER_DURATION;
 			}
 			//_drag->y = 1.1f;
@@ -850,6 +857,8 @@ sfBool isGrounded(sfVector2f _pos, sfVector2f* _velocity, sfVector2f* _drag)
 	}
 
 	return sfFalse;
+
+
 }
 
 sfBool isCollision3(sfFloatRect _rect, sfVector2f* _velocity)
@@ -1075,7 +1084,7 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 				tmpRect = blockRect;
 				if (sfFloatRect_intersects(&_rect, &blockRect, NULL))
 				{
-					if (getViewFocus() == FROG)
+					if (getViewFocus() == FROG && (b[blockPos.y - 1][blockPos.x].type < T_LEFTPLATFORM || b[blockPos.y - 1][blockPos.x].type > T_RIGHTPLATFORM))
 						setPlayerMusicBlocTimer(FROG, MUSIC_BLOC_TIMER_DURATION);
 
 					switch (b[blockPos.y - 1][blockPos.x].type)
@@ -1107,10 +1116,12 @@ sfBool isCollision2(sfFloatRect _rect, sfBool _XAxis, sfBool _UpOrLeft)
 			if (b[blockPos2.y - 1][blockPos2.x].isSolid)
 			{
 				sfFloatRect blockRect2 = FlRect(b[blockPos2.y - 1][blockPos2.x].pos.x, b[blockPos2.y - 1][blockPos2.x].pos.y, BLOCK_SIZE * BLOCK_SCALE, BLOCK_SIZE * BLOCK_SCALE);
+				//if (b[blockPos2.y - 1][blockPos2.x].type >= T_LEFTPLATFORM && b[blockPos2.y - 1][blockPos2.x].type <= T_RIGHTPLATFORM)
+					//blockRect2.width -= 
 				tmpRect = blockRect2;
 				if (sfFloatRect_intersects(&_rect, &blockRect2, NULL))
 				{
-					if (getViewFocus() == FROG)
+					if (getViewFocus() == FROG && (b[blockPos2.y - 1][blockPos2.x].type < T_LEFTPLATFORM || b[blockPos2.y - 1][blockPos2.x].type > T_RIGHTPLATFORM))
 						setPlayerMusicBlocTimer(FROG, MUSIC_BLOC_TIMER_DURATION);
 
 					switch (b[blockPos2.y - 1][blockPos2.x].type)
@@ -1288,6 +1299,11 @@ sfVector2f getSlingshotBasePos()
 sfBool isMapFinished()
 {
 	return isMapF;
+}
+
+void setMapFinishedState(sfBool _isMapF)
+{
+	isMapF = _isMapF;
 }
 
 sfVector2f getFinishPlayerPos(int _nb)

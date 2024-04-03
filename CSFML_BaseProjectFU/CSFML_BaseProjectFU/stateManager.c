@@ -12,6 +12,7 @@
 #include "particlesSystemManager.h"
 #include "map.h"
 #include "editor.h"
+#include "choice.h"
 
 
 void stateInit(Window* _window)
@@ -37,9 +38,11 @@ void stateInit(Window* _window)
 
 		nbPlayer = NbConnectedControllers();
 		initParticlesSystem();
+		loadOptions(_window);
 
 		isEditor = sfFalse;
 		firstload = sfTrue;
+		isChoice = sfFalse;
 	}
 
 	if (!onePass)
@@ -54,6 +57,7 @@ void stateInit(Window* _window)
 		{
 			initMenu(_window);
 			initOptions(_window);
+			initChoice();
 		}
 		if (state == GAME)
 		{
@@ -103,6 +107,7 @@ void stateUpdate(Window* _window)
 {
 	// to remove
 	if (middleClick(_window->renderWindow)) _window->isDone = sfTrue;
+
 	if (w.state)
 	{
 		if (!isDialogBox)
@@ -115,6 +120,8 @@ void stateUpdate(Window* _window)
 			{
 				if (isOption)
 					updateOptions(_window);
+				else if (isChoice)
+					updateChoice(_window);
 				else
 					updateMenu(_window);
 			}
@@ -179,7 +186,10 @@ void stateDisplay(Window* _window)
 		}
 		if (state == MENU)
 		{
-			displayMenu(_window);
+			if (isChoice)
+				displayChoice(_window);
+			else
+				displayMenu(_window);
 			if (isOption)
 			{
 				displayOptions(_window);
@@ -271,4 +281,14 @@ void togglePause()
 void toggleOptions()
 {
 	isOption = !isOption;
+}
+
+EndState getEndState()
+{
+	return endState;
+}
+
+void setEndState(EndState _endState)
+{
+	endState = _endState;
 }

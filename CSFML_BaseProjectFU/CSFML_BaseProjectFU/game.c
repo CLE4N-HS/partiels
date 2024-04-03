@@ -10,6 +10,7 @@
 #include "editor.h"
 #include "finish.h"
 #include "hud.h"
+#include "gamepadx.h"
 
 #include <Windows.h>
 
@@ -81,17 +82,8 @@ void initGame(Window* _window)
 void updateGame(Window* _window)
 {
 	timer += getDeltaTime();
-	
-	for (int i = 0; i < /*8*/nbPlayer; i++)
-	{
-		if (Gamepad_isButtonPressed(i, OPTION) && timer > 0.2f)
-		{
-			togglePause();
-			timer = 0.0f;
-		}
-	}
 
-	if (isKeyboardOrControllerButtonPressed(sfKeyEscape, SELECT_XBOX) && timer > 0.2f)
+	if (/*isKeyboardOrControllerButtonPressed(sfKeyEscape, SELECT_XBOX) */(isButtonPressed(0, START) || isButtonPressed(0, BACK)) && timer > 0.2f && !isMapFinished())
 	{
 		togglePause();
 		timer = 0.0f;

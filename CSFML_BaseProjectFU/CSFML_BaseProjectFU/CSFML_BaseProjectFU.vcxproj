@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="choice.c" />
     <ClCompile Include="customMath.c" />
     <ClCompile Include="dialogBox.c" />
     <ClCompile Include="editor.c" />
@@ -186,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\CSFML_DLL_Project\sfBaseDllProject\dirent.h" />
+    <ClInclude Include="choice.h" />
     <ClInclude Include="CustomMath.h" />
     <ClInclude Include="dialogBox.h" />
     <ClInclude Include="editor.h" />

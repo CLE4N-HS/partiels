@@ -56,7 +56,7 @@ void updatePause(Window* _window)
 
 	for (int i = 0; i < /*8*/1; i++)
 	{
-		if (Gamepad_isButtonPressed(i, OPTION) && timer > 0.2f)
+		if ((isButtonPressed(0, START) || isButtonPressed(0, BACK)) && timer > 0.2f)
 		{
 			togglePause();
 			timer = 0.0f;

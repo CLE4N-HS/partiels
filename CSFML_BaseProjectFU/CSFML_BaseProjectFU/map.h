@@ -175,6 +175,8 @@ sfVector2f getSlingshotBasePos();
 
 sfBool isMapFinished();
 
+void setMapFinishedState(sfBool _isMapF);
+
 sfVector2f getFinishPlayerPos(int _nb);
 
 sfIntRect getKeysAvailable();

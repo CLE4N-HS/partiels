@@ -14,6 +14,12 @@ typedef enum
 	END
 }State;
 
+typedef enum {
+	NOT_ENDED,
+	FINSIH_ANIM,
+	END_SCREEN
+}EndState;
+
 
 typedef struct 
 {
@@ -24,12 +30,14 @@ typedef struct
 watcher w;
 
 static State state = MENU;
+static EndState endState = NOT_ENDED;
 
 static sfBool onePass = sfFalse;
 static sfBool isPaused = sfFalse;
 static sfBool isOption = sfFalse;
 
 sfBool isEditor;
+sfBool isChoice;
 
 sfThread* loadingThread;
 sfSprite* spLoading;
@@ -73,6 +81,10 @@ void stateDeinit(Window* _window);
 void changeState(Window* _window, State _state);
 
 State getState();
+
+EndState getEndState();
+
+void setEndState(EndState _endState);
 
 /// <summary>
 /// Pauses the game, or restarts the game if it was already paused

@@ -4,6 +4,7 @@
 #include "player.h"
 
 #define FINISH_TIMER_DURATION 5.f
+#define OPAQUE_TIMER_DURATION 3.f
 
 void initFinsih();
 

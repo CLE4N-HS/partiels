@@ -16,6 +16,9 @@
 
 #define VECTOR2F_NULL vector2f(0.f, 0.f)
 
+#define TEXT_ORIGIN vector2f(tmpRect.width / 2.f, tmpRect.height) // center the size
+#define TEXT_STRING_ORIGIN vector2f(tmpRect.width / 2.f, 0.f) // center the string
+
 typedef struct vector4f vector4f;
 struct vector4f
 {

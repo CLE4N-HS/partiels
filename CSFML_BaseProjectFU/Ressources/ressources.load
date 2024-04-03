@@ -2,6 +2,7 @@
 animation loadingAnim ../Ressources/Textures/loading.anim
 [end]
 [menu]
+single logo ../Ressources/Textures/logo.png
 [end]
 [game]
 single frogIdle ../Ressources/Textures/GAME/players/frog/idle.png

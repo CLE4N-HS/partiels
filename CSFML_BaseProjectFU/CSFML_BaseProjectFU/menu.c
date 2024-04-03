@@ -4,6 +4,7 @@
 #include "viewManager.h"
 #include "dialogBox.h"
 #include "particlesSystemManager.h"
+#include "textureManager.h"
 
 sfFont* venture3D;
 
@@ -12,8 +13,7 @@ sfText* Editor;
 sfText* Options;
 sfText* Quit;
 
-sfTexture* texture;
-sfSprite* sprite;
+sfSprite* menuSprite;
 
 int menuSelection;
 
@@ -25,6 +25,10 @@ void initMenu(Window* _window)
 	venture3D = sfFont_createFromFile("../Ressources/Fonts/GingerSoda.ttf");
 
 	SetViewPosition(mainView, vector2f(mainView->defaultVideoMode.x / 2.0f, mainView->defaultVideoMode.y / 2.0f));
+
+	menuSprite = sfSprite_create();
+	sfSprite_setTexture(menuSprite, GetTexture("logo"), sfTrue);
+	sfSprite_setPosition(menuSprite, vector2f(300.f, 300.f));
 
 	Play = sfText_create();
 	Editor = sfText_create();
@@ -187,6 +191,7 @@ void updateMenu(Window* _window)
 
 void displayMenu(Window* _window)
 {
+	sfRenderTexture_drawSprite(_window->renderTexture, menuSprite, NULL);
 	
 	sfRenderTexture_drawText(_window->renderTexture, Play, NULL);
 	sfRenderTexture_drawText(_window->renderTexture, Editor, NULL);

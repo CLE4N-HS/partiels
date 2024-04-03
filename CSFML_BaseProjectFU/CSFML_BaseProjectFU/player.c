@@ -30,7 +30,7 @@ typedef struct {
 Players p[2];
 
 // to remove
-sfRectangleShape* pRectangle;
+sfRectangleShape* pRectangle;  
 sfCircleShape* pCircle;
 
 playerType viewFocus;
@@ -180,8 +180,9 @@ void updatePlayer(Window* _window)
 			if (!isSomeoneInSlingshot())
 			{
 				p[FROG].anim = FALL;
-				if (p[FROG].lauchingTimer >= LAUNCHING_TIMER_DURATION)
+				if (p[FROG].lauchingTimer >= LAUNCHING_TIMER_DURATION) {
 					p[FROG].velocity.y += GRAVITY * dt;
+				}
 
 			}
 		}

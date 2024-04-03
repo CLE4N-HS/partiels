@@ -94,7 +94,8 @@ void updateMenu(Window* _window)
 			{
 			case 0:
 				isEditor = sfFalse;
-				changeState(_window, GAME);
+				isChoice = sfTrue;
+				//changeState(_window, GAME);
 				break;
 			case 1:
 				isEditor = sfTrue;
@@ -162,7 +163,8 @@ void updateMenu(Window* _window)
 		{
 		case 0:
 			isEditor = sfFalse;
-			changeState(_window, GAME);
+			isChoice = sfTrue;
+			//changeState(_window, GAME);
 			break;
 		case 1:
 			isEditor = sfTrue;

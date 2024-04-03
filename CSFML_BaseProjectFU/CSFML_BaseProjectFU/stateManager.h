@@ -30,6 +30,7 @@ static sfBool isPaused = sfFalse;
 static sfBool isOption = sfFalse;
 
 sfBool isEditor;
+sfBool isChoice;
 
 sfThread* loadingThread;
 sfSprite* spLoading;
